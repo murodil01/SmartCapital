@@ -1,0 +1,421 @@
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ChevronsRight,
+  Search,
+  ChevronDown,
+  Calendar,
+  X,
+  Bell,
+  LogOut,
+  User,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
+// ── Month picker data ─────────────────────────────────────────────
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+// ── Helper ──────────────────────────────────────────────────────
+const today = new Date();
+
+const sectionTitles = {
+  dashboard: {
+    title: "Dashboard",
+    subtitle: "Manage your Debts and Receivables.",
+  },
+  accounts: {
+    title: "Accounts",
+    subtitle: "Gain insights into your income and expenses.",
+  },
+  transactions: {
+    title: "Transactions",
+    subtitle: "Track and manage all your financial activity.",
+  },
+  budget: {
+    title: "Budgets",
+    subtitle: "Plan and manage your monthly spending.",
+  },
+  debts: { title: "Debts", subtitle: "Manage your Debts and Receivables." },
+  analytics: {
+    title: "Analytics",
+    subtitle: "Gain insights into your income and expenses.",
+  },
+  calendar: {
+    title: "Calendar",
+    subtitle: "Track your income and expenses by date",
+  },
+  family: {
+    title: "Family",
+    subtitle: "Manage your family members, budgets and shared expenses.",
+  },
+  settings: { title: "Settings", subtitle: "Manage your profile." },
+  support: { title: "Support", subtitle: "Get help or contact support." },
+  logout: { title: "Log Out", subtitle: "Manage your session or logout." },
+};
+
+const Navbar = ({
+  activeSection = "dashboard",
+  collapsed,
+  setCollapsed,
+  mobileOpen,
+  setMobileOpen,
+}) => {
+  // ── Search ────────────────────────────────────────────────────
+  const [searchValue, setSearchValue] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const searchRef = useRef(null);
+  const mobileSearchRef = useRef(null);
+  const navigate = useNavigate();
+
+  // ── Month picker ──────────────────────────────────────────────
+  const [monthOpen, setMonthOpen] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
+  const [pickerYear, setPickerYear] = useState(today.getFullYear());
+  const monthRef = useRef(null);
+
+  // ── Profile dropdown ─────────────────────────────────────────
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
+
+  // ── Close dropdowns on outside click ─────────────────────────
+  useEffect(() => {
+    const handler = (e) => {
+      if (monthRef.current && !monthRef.current.contains(e.target))
+        setMonthOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target))
+        setProfileOpen(false);
+      if (
+        mobileSearchRef.current &&
+        !mobileSearchRef.current.contains(e.target)
+      ) {
+        setMobileSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // ── Auto-focus search input on mobile ───────────────────────
+  useEffect(() => {
+    if (mobileSearchOpen && searchRef.current) searchRef.current.focus();
+  }, [mobileSearchOpen]);
+
+  const { title, subtitle } =
+    sectionTitles[activeSection] || sectionTitles.dashboard;
+
+  const monthLabel =
+    selectedMonth === today.getMonth() && pickerYear === today.getFullYear()
+      ? "This month"
+      : `${MONTHS[selectedMonth].slice(0, 3)} ${pickerYear}`;
+
+  return (
+    <div className="bg-[#EEF1FF] shadow-2xl border-b border-[#E0E0E0] px-4 py-6 flex flex-col gap-2 relative">
+      {/* Mobile search bar */}
+      {mobileSearchOpen && (
+        <div
+          ref={mobileSearchRef}
+          className="md:hidden flex items-center gap-2 bg-white rounded-xl border border-blue-300 px-3 py-2 shadow"
+        >
+          <Search size={15} className="text-gray-400 shrink-0" />
+          <input
+            ref={searchRef}
+            type="text"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            placeholder="Search..."
+            className="flex-1 text-[13px] text-gray-700 placeholder-gray-400 focus:outline-none bg-transparent"
+          />
+          {searchValue && (
+            <button onClick={() => setSearchValue("")}>
+              <X size={13} className="text-gray-400" />
+            </button>
+          )}
+          <button onClick={() => setMobileSearchOpen(false)}>
+            <X size={15} className="text-gray-500" />
+          </button>
+        </div>
+      )}
+
+      {/* Main row */}
+      <div className="flex justify-between items-center">
+        {/* LEFT */}
+        <div className="flex items-center gap-3">
+          {/* Desktop toggle */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/60 transition-colors"
+          >
+            <ChevronsRight
+              size={20}
+              className={`text-gray-600 transition-transform duration-300 ${collapsed ? "" : "rotate-180"}`}
+            />
+          </button>
+
+          {/* Mobile toggle */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/60 transition-colors"
+          >
+            <ChevronsRight
+              size={20}
+              className={`text-gray-600 transition-transform duration-300 ${mobileOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {/* Section title & subtitle */}
+          <div className="flex flex-col">
+            <h3 className="text-base sm:text-lg md:text-xl lg:text-[22px] font-semibold text-black leading-tight">
+              {title}
+            </h3>
+            <p className="hidden md:block text-[13px] font-normal text-gray-500 mt-0.5">
+              {subtitle}
+            </p>
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div className="flex items-center gap-2">
+          {/* Desktop Search */}
+          <div className="relative hidden md:flex items-center">
+            <Search
+              size={14}
+              className="absolute left-3 text-gray-400 pointer-events-none"
+            />
+            <input
+              type="text"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search..."
+              className="w-52 pl-9 pr-8 py-2 text-[13px] bg-white/60 border border-[#D1D5DB] rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all duration-150"
+            />
+            {searchValue && (
+              <button
+                onClick={() => setSearchValue("")}
+                className="absolute right-2.5 text-gray-400 hover:text-gray-600"
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
+
+          {/* Mobile Search icon */}
+          <button
+            onClick={() => setMobileSearchOpen(true)}
+            className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-[#D1D5DB] bg-white/60 hover:bg-white transition-colors"
+          >
+            <Search size={16} className="text-gray-500" />
+          </button>
+
+          {/* Desktop Month Picker */}
+          <div className="relative hidden md:block" ref={monthRef}>
+            <button
+              onClick={() => {
+                setMonthOpen(!monthOpen);
+                setProfileOpen(false);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#D1D5DB] text-[13px] font-medium text-gray-600 bg-white/60 hover:bg-white transition-all duration-150"
+            >
+              <Calendar size={14} className="text-gray-400" />
+              {monthLabel}
+              <ChevronDown
+                size={13}
+                className={`text-gray-400 transition-transform duration-200 ${monthOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {monthOpen && (
+              <div className="absolute right-0 top-[110%] z-50 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl p-4 w-64">
+                <div className="flex items-center justify-between mb-3">
+                  <button
+                    onClick={() => setPickerYear((y) => y - 1)}
+                    className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center"
+                  >
+                    <ChevronLeft size={15} className="text-gray-500" />
+                  </button>
+                  <span className="text-[14px] font-semibold text-gray-700">
+                    {pickerYear}
+                  </span>
+                  <button
+                    onClick={() => setPickerYear((y) => y + 1)}
+                    className="w-7 h-7 rounded-lg hover:bg-gray-100 flex items-center justify-center"
+                  >
+                    <ChevronRight size={15} className="text-gray-500" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {MONTHS.map((m, i) => {
+                    const isSelected =
+                      i === selectedMonth && pickerYear === pickerYear;
+                    const isToday =
+                      i === today.getMonth() &&
+                      pickerYear === today.getFullYear();
+                    return (
+                      <button
+                        key={m}
+                        onClick={() => {
+                          setSelectedMonth(i);
+                          setMonthOpen(false);
+                        }}
+                        className={`py-1.5 rounded-lg text-[12px] font-medium transition-colors
+                          ${isSelected ? "bg-blue-500 text-white" : isToday ? "border border-blue-400 text-blue-600" : "hover:bg-gray-100 text-gray-600"}`}
+                      >
+                        {m.slice(0, 3)}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedMonth(today.getMonth());
+                    setPickerYear(today.getFullYear());
+                    setMonthOpen(false);
+                  }}
+                  className="mt-3 w-full text-[12px] text-blue-500 hover:underline font-medium"
+                >
+                  Reset to current month
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Month Picker */}
+          <div className="relative md:hidden" ref={monthRef}>
+            <button
+              onClick={() => {
+                setMonthOpen(!monthOpen);
+                setProfileOpen(false);
+              }}
+              className="flex items-center justify-center w-9 h-9 rounded-xl border border-[#D1D5DB] bg-white/60 hover:bg-white transition-colors"
+            >
+              <Calendar size={16} className="text-gray-500" />
+            </button>
+
+            {monthOpen && (
+              <div className="absolute right-0 top-[110%] z-50 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl p-4 w-64">
+                <div className="grid grid-cols-3 gap-1.5">
+                  {MONTHS.map((m, i) => {
+                    const isToday =
+                      i === today.getMonth() &&
+                      pickerYear === today.getFullYear();
+                    return (
+                      <button
+                        key={m}
+                        onClick={() => {
+                          setSelectedMonth(i);
+                          setMonthOpen(false);
+                        }}
+                        className={`py-1.5 rounded-lg text-[12px] font-medium transition-colors
+                          ${i === selectedMonth ? "bg-blue-500 text-white" : isToday ? "border border-blue-400 text-blue-600" : "hover:bg-gray-100 text-gray-600"}`}
+                      >
+                        {m.slice(0, 3)}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedMonth(today.getMonth());
+                    setPickerYear(today.getFullYear());
+                    setMonthOpen(false);
+                  }}
+                  className="mt-3 w-full text-[12px] text-blue-500 hover:underline font-medium"
+                >
+                  Reset to current month
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Profile */}
+          <div className="relative" ref={profileRef}>
+            <button
+              onClick={() => {
+                setProfileOpen(!profileOpen);
+                setMonthOpen(false);
+              }}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[#D1D5DB] text-[13px] font-medium text-gray-700 bg-white/60 hover:bg-white transition-all duration-150"
+            >
+              <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold">
+                DS
+              </div>
+              <span className="hidden md:inline">Daniel Smith</span>
+              <ChevronDown
+                size={13}
+                className={`text-gray-400 transition-transform duration-200 ${profileOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {profileOpen && (
+              <div className="absolute right-0 top-[110%] z-50 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl w-52 overflow-hidden">
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                      DS
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-semibold text-gray-800">
+                        Daniel Smith
+                      </p>
+                      <p className="text-[11px] text-gray-400">
+                        daniel@example.com
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {[
+                  { icon: User, label: "Profile" },
+                  { icon: Bell, label: "Notifications" },
+                  { icon: Settings, label: "Settings" },
+                ].map(({ icon: Icon, label }) => (
+                  <button
+                    key={label}
+                    className="flex items-center gap-3 w-full px-4 py-2.5 text-[13px] text-gray-600 hover:bg-gray-50 transition-colors"
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    <Icon size={15} className="text-gray-400" />
+                    {label}
+                  </button>
+                ))}
+                <div className="border-t border-gray-100">
+                  <button
+                    className="flex items-center gap-3 w-full px-4 py-2.5 text-[13px] text-red-500 hover:bg-red-50 transition-colors"
+                    onClick={() => {
+                      // 1. Tokenni o'chirish
+                      localStorage.removeItem("token");
+
+                      // 2. Profile dropdownni yopish
+                      setProfileOpen(false);
+
+                      // 3. Login sahifasiga yo'naltirish
+                      navigate("/login");
+                    }}
+                  >
+                    <LogOut size={15} className="text-red-400" />
+                    Log out
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Navbar;
