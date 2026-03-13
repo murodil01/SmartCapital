@@ -408,32 +408,34 @@ const Transactions = () => {
         />
       )}
 
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[20px] font-bold text-gray-900">My Transactions</h2>
-        <div className="flex gap-2 flex-wrap">
+      {/* Header - responsive */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h3 className="text-[18px] sm:text-[20px] font-bold text-gray-900">
+          My Transactions
+        </h3>
+        <div className="flex gap-2 w-full sm:w-auto flex-nowrap">
           <button
             onClick={() => handleAdd("add-expense")}
-            className="flex items-center gap-1.5 px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-[13px] font-semibold rounded-xl transition-colors"
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-red-500 hover:bg-red-600 text-white text-[13px] font-semibold rounded-xl transition-colors whitespace-nowrap"
           >
             <Plus size={14} /> Add Expense
           </button>
           <button
             onClick={() => handleAdd("add-income")}
-            className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-[13px] font-semibold rounded-xl transition-colors"
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-green-600 hover:bg-green-700 text-white text-[13px] font-semibold rounded-xl transition-colors whitespace-nowrap"
           >
             <Plus size={14} /> Add Income
           </button>
           <button
             onClick={() => handleAdd("add-transfer")}
-            className="flex items-center gap-1.5 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-[13px] font-semibold rounded-xl transition-colors"
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-blue-700 hover:bg-blue-800 text-white text-[13px] font-semibold rounded-xl transition-colors whitespace-nowrap"
           >
             <Plus size={14} /> Transfer
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - responsive */}
       <div className="flex gap-2 flex-wrap">
         {[
           ["all", "All"],
@@ -447,43 +449,42 @@ const Transactions = () => {
               setTab(val);
               setPage(1);
             }}
-            className={`px-4 py-2 rounded-full text-[13px] font-medium transition-colors ${tab === val ? "bg-blue-900 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"}`}
+            className={`px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-[13px] font-medium transition-colors whitespace-nowrap ${
+              tab === val
+                ? "bg-blue-900 text-white"
+                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+            }`}
           >
             {label}
           </button>
         ))}
       </div>
 
-      {/* Filters */}
+      {/* Filters - responsive */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div>
-            <label className="text-[11px] text-gray-400 font-medium mb-1 block">
-              Date Range
+            <label className="text-[20px] text-[#212121] font-medium mb-1 block">
+              Date
             </label>
-            <div className="flex gap-1">
-              <input
-                type="date"
-                value={filters.dateFrom}
-                onChange={(e) => setFilter("dateFrom", e.target.value)}
-                className="flex-1 border border-gray-200 rounded-xl px-2 py-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <input
-                type="date"
-                value={filters.dateTo}
-                onChange={(e) => setFilter("dateTo", e.target.value)}
-                className="flex-1 border border-gray-200 rounded-xl px-2 py-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
+            <input
+              type="date"
+              value={filters.dateFrom}
+              onChange={(e) => {
+                setFilter("dateFrom", e.target.value);
+                setFilter("dateTo", e.target.value);
+              }}
+              className="w-full text-[#25282C] text-[17px] border border-gray-200 rounded-[10px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
           </div>
           <div>
-            <label className="text-[11px] text-gray-400 font-medium mb-1 block">
+            <label className="text-[20px] text-[#212121] font-medium mb-1 block">
               Category
             </label>
             <select
               value={filters.category}
               onChange={(e) => setFilter("category", e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full text-[#25282C] border border-gray-200 rounded-[10px] px-3 py-2 text-[17px] focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">Select Category</option>
               {CATEGORIES.map((c) => (
@@ -492,13 +493,13 @@ const Transactions = () => {
             </select>
           </div>
           <div>
-            <label className="text-[11px] text-gray-400 font-medium mb-1 block">
+            <label className="text-[20px] text-[#212121] font-medium mb-1 block">
               Account
             </label>
             <select
               value={filters.account}
               onChange={(e) => setFilter("account", e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[12px] focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-200 rounded-[10px] px-3 py-2 text-[#25282C] text-[17px] focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">Select Account</option>
               {ACCOUNTS.map((a) => (
@@ -507,33 +508,26 @@ const Transactions = () => {
             </select>
           </div>
           <div>
-            <label className="text-[11px] text-gray-400 font-medium mb-1 block">
+            <label className="text-[20px] text-[#212121] font-medium mb-1 block">
               Amount
             </label>
-            <div className="flex gap-1">
-              <input
-                type="number"
-                placeholder="Min"
-                value={filters.amountMin}
-                onChange={(e) => setFilter("amountMin", e.target.value)}
-                className="flex-1 border border-gray-200 rounded-xl px-2 py-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.amountMax}
-                onChange={(e) => setFilter("amountMax", e.target.value)}
-                className="flex-1 border border-gray-200 rounded-xl px-2 py-2 text-[11px] focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
+            <input
+              type="number"
+              placeholder="Enter amount"
+              value={filters.amountMin}
+              onChange={(e) => {
+                const val = e.target.value;
+                setFilter("amountMin", val);
+                setFilter("amountMax", val);
+              }}
+              className="w-full border border-gray-200 rounded-[10px] px-3 py-2 text-[#25282C] text-[17px] focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
           </div>
         </div>
         {(filters.category ||
           filters.account ||
           filters.dateFrom ||
-          filters.dateTo ||
-          filters.amountMin ||
-          filters.amountMax) && (
+          filters.amountMin) && (
           <button
             onClick={() =>
               setFilters({
@@ -545,22 +539,22 @@ const Transactions = () => {
                 amountMax: "",
               })
             }
-            className="mt-3 text-[12px] text-red-400 hover:text-red-600 flex items-center gap-1"
+            className="mt-3 text-[17px] text-red-400 hover:text-red-600 flex items-center gap-1"
           >
             <X size={12} /> Clear filters
           </button>
         )}
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      {/* Desktop Table (md va katta) */}
+      <div className="hidden md:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-gray-50">
           <h3 className="text-[15px] font-semibold text-gray-800">
             Expense Transactions
           </h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-200">
             <thead>
               <tr className="bg-blue-900">
                 {[
@@ -573,7 +567,7 @@ const Transactions = () => {
                 ].map((h) => (
                   <th
                     key={h}
-                    className="text-left px-4 py-3 text-white text-[12px] font-semibold"
+                    className="text-left px-4 py-3 text-white text-[12px] font-semibold whitespace-nowrap"
                   >
                     {h}
                   </th>
@@ -585,7 +579,7 @@ const Transactions = () => {
                 <tr>
                   <td
                     colSpan={6}
-                    className="text-center py-10 text-gray-400 text-[13px]"
+                    className="text-center 20-10 text-[#212121] text-[13px]"
                   >
                     No transactions found
                   </td>
@@ -594,22 +588,24 @@ const Transactions = () => {
                 paginated.map((tx, i) => (
                   <tr
                     key={tx.id}
-                    className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${i % 2 === 0 ? "" : "bg-gray-50/50"}`}
+                    className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${
+                      i % 2 === 0 ? "" : "bg-gray-50/50"
+                    }`}
                   >
-                    <td className="px-4 py-3 text-[12px] text-gray-600">
+                    <td className="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">
                       {tx.date}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="flex items-center gap-1.5 text-[12px] text-gray-700">
+                      <span className="flex items-center gap-1.5 text-[12px] text-gray-700 whitespace-nowrap">
                         <Tag size={12} className="text-gray-400" />{" "}
                         {tx.category}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-[12px] text-gray-500">
+                    <td className="px-4 py-3 text-[12px] text-gray-500 max-w-50 truncate">
                       {tx.description || "—"}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="flex items-center gap-1.5 text-[12px] text-gray-700">
+                      <span className="flex items-center gap-1.5 text-[12px] text-gray-700 whitespace-nowrap">
                         <span
                           className="w-3 h-3 rounded-sm inline-block shrink-0"
                           style={{ background: tx.accountColor }}
@@ -619,7 +615,9 @@ const Transactions = () => {
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`text-[12px] font-bold ${tx.amount > 0 ? "text-green-600" : "text-red-500"}`}
+                        className={`text-[12px] font-bold whitespace-nowrap ${
+                          tx.amount > 0 ? "text-green-600" : "text-red-500"
+                        }`}
                       >
                         {tx.amount > 0 ? "+" : "-"}
                         {fmt(tx.amount)}{" "}
@@ -632,13 +630,13 @@ const Transactions = () => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleEdit(tx)}
-                          className="text-gray-400 hover:text-blue-500 transition-colors"
+                          className="text-gray-400 hover:text-blue-500 transition-colors p-1"
                         >
                           <Pencil size={14} />
                         </button>
                         <button
                           onClick={() => handleDelete(tx.id)}
-                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          className="text-gray-400 hover:text-red-500 transition-colors p-1"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -650,49 +648,169 @@ const Transactions = () => {
             </tbody>
           </table>
         </div>
+      </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
-          <span className="text-[12px] text-gray-400">
-            Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–
-            {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}{" "}
-            transactions
+      {/* Mobile Cards (md dan kichik) */}
+      <div className="md:hidden space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[15px] font-semibold text-gray-800">
+            Expense Transactions
+          </h3>
+          <span className="text-[11px] text-gray-400">
+            {filtered.length} transactions
           </span>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="px-3 py-1.5 rounded-lg text-[12px] text-gray-500 hover:bg-gray-100 disabled:opacity-40"
+        </div>
+
+        {paginated.length === 0 ? (
+          <div className="text-center py-10 text-gray-400 text-[13px] bg-white rounded-2xl border border-gray-100">
+            No transactions found
+          </div>
+        ) : (
+          paginated.map((tx) => (
+            <div
+              key={tx.id}
+              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-shadow"
             >
-              ← Previous
-            </button>
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">
+                    {tx.date}
+                  </span>
+                  <span
+                    className={`text-[11px] font-medium px-2 py-1 rounded-lg ${
+                      tx.amount > 0
+                        ? "bg-green-50 text-green-600"
+                        : tx.type === "transfer"
+                          ? "bg-blue-50 text-blue-600"
+                          : "bg-red-50 text-red-500"
+                    }`}
+                  >
+                    {tx.type}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleEdit(tx)}
+                    className="text-gray-400 hover:text-blue-500 transition-colors p-1"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(tx.id)}
+                    className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-[13px] text-gray-700">
+                    <Tag size={14} className="text-gray-400" />
+                    {tx.category}
+                  </span>
+                  <span
+                    className={`text-[15px] font-bold ${
+                      tx.amount > 0 ? "text-green-600" : "text-red-500"
+                    }`}
+                  >
+                    {tx.amount > 0 ? "+" : "-"}
+                    {fmt(tx.amount)}
+                  </span>
+                </div>
+
+                {tx.description && tx.description !== "—" && (
+                  <p className="text-[12px] text-gray-500">{tx.description}</p>
+                )}
+
+                <div className="flex items-center justify-between pt-2 border-t border-gray-50">
+                  <span className="flex items-center gap-1.5 text-[12px] text-gray-700">
+                    <span
+                      className="w-3 h-3 rounded-sm"
+                      style={{ background: tx.accountColor }}
+                    />
+                    {tx.account}
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    {tx.amount > 0
+                      ? "Income"
+                      : tx.type === "transfer"
+                        ? "Transfer"
+                        : "Expense"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Pagination - responsive */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-gray-100">
+        <span className="text-[12px] text-gray-400 order-2 sm:order-1">
+          Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–
+          {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+        </span>
+
+        <div className="flex items-center gap-1 order-1 sm:order-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] text-gray-500 hover:bg-gray-100 disabled:opacity-40"
+          >
+            ←
+          </button>
+
+          <div className="flex items-center gap-1">
             {Array.from(
-              { length: Math.min(totalPages, 5) },
+              { length: Math.min(totalPages, 3) },
               (_, i) => i + 1,
             ).map((p) => (
               <button
                 key={p}
                 onClick={() => setPage(p)}
-                className={`w-7 h-7 rounded-lg text-[12px] font-medium transition-colors ${page === p ? "bg-blue-700 text-white" : "text-gray-500 hover:bg-gray-100"}`}
+                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg text-[11px] sm:text-[12px] font-medium transition-colors ${
+                  page === p
+                    ? "bg-blue-700 text-white"
+                    : "text-gray-500 hover:bg-gray-100"
+                }`}
               >
                 {p}
               </button>
             ))}
-            {totalPages > 5 && (
-              <span className="text-gray-400 text-[12px]">...</span>
+
+            {totalPages > 3 && (
+              <>
+                <span className="text-gray-400 text-[11px] sm:text-[12px]">
+                  ...
+                </span>
+                <button
+                  onClick={() => setPage(totalPages)}
+                  className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg text-[11px] sm:text-[12px] font-medium transition-colors ${
+                    page === totalPages
+                      ? "bg-blue-700 text-white"
+                      : "text-gray-500 hover:bg-gray-100"
+                  }`}
+                >
+                  {totalPages}
+                </button>
+              </>
             )}
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="px-3 py-1.5 rounded-lg text-[12px] text-gray-500 hover:bg-gray-100 disabled:opacity-40"
-            >
-              Next →
-            </button>
           </div>
-          <span className="text-[12px] text-gray-400">
-            Page {page} of {totalPages}
-          </span>
+
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-[12px] text-gray-500 hover:bg-gray-100 disabled:opacity-40"
+          >
+            →
+          </button>
         </div>
+
+        <span className="text-[11px] sm:text-[12px] text-gray-400 order-3">
+          Page {page}/{totalPages}
+        </span>
       </div>
     </div>
   );
