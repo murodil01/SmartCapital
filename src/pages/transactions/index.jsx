@@ -410,25 +410,27 @@ const Transactions = () => {
 
       {/* Header - responsive */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h3 className="text-[18px] sm:text-[20px] font-bold text-gray-900">
+        <h3 className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] font-bold text-gray-900">
           My Transactions
         </h3>
-        <div className="flex gap-2 w-full sm:w-auto flex-nowrap">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-wrap">
           <button
             onClick={() => handleAdd("add-expense")}
-            className="flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-red-500 hover:bg-red-600 text-white text-[13px] font-semibold rounded-xl transition-colors whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-4 py-2 sm:py-2.5 bg-red-500 hover:bg-red-600 text-white text-[13px] sm:text-[14px] font-semibold rounded-xl transition-colors whitespace-nowrap"
           >
             <Plus size={14} /> Add Expense
           </button>
+
           <button
             onClick={() => handleAdd("add-income")}
-            className="flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-green-600 hover:bg-green-700 text-white text-[13px] font-semibold rounded-xl transition-colors whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-4 py-2 sm:py-2.5 bg-green-600 hover:bg-green-700 text-white text-[13px] sm:text-[14px] font-semibold rounded-xl transition-colors whitespace-nowrap"
           >
             <Plus size={14} /> Add Income
           </button>
+
           <button
             onClick={() => handleAdd("add-transfer")}
-            className="flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 bg-blue-700 hover:bg-blue-800 text-white text-[13px] font-semibold rounded-xl transition-colors whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-4 py-2 sm:py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-[13px] sm:text-[14px] font-semibold rounded-xl transition-colors whitespace-nowrap"
           >
             <Plus size={14} /> Transfer
           </button>
@@ -464,7 +466,7 @@ const Transactions = () => {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div>
-            <label className="text-[20px] text-[#212121] font-medium mb-1 block">
+            <label className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] text-[#212121] font-medium mb-1 block">
               Date
             </label>
             <input
@@ -474,17 +476,17 @@ const Transactions = () => {
                 setFilter("dateFrom", e.target.value);
                 setFilter("dateTo", e.target.value);
               }}
-              className="w-full text-[#25282C] text-[17px] border border-gray-200 rounded-[10px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full text-[#25282C] text-[13px] sm:text-[14px] md:text-[15px] lg:text-[17px] border border-gray-200 rounded-[10px] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
           <div>
-            <label className="text-[20px] text-[#212121] font-medium mb-1 block">
+            <label className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] text-[#212121] font-medium mb-1 block">
               Category
             </label>
             <select
               value={filters.category}
               onChange={(e) => setFilter("category", e.target.value)}
-              className="w-full text-[#25282C] border border-gray-200 rounded-[10px] px-3 py-2 text-[17px] focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full text-[#25282C] border border-gray-200 rounded-[10px] px-3 py-2 text-[13px] sm:text-[14px] md:text-[15px] lg:text-[17px] focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">Select Category</option>
               {CATEGORIES.map((c) => (
@@ -493,13 +495,13 @@ const Transactions = () => {
             </select>
           </div>
           <div>
-            <label className="text-[20px] text-[#212121] font-medium mb-1 block">
+            <label className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] text-[#212121] font-medium mb-1 block">
               Account
             </label>
             <select
               value={filters.account}
               onChange={(e) => setFilter("account", e.target.value)}
-              className="w-full border border-gray-200 rounded-[10px] px-3 py-2 text-[#25282C] text-[17px] focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-200 rounded-[10px] px-3 py-2 text-[#25282C] text-[13px] sm:text-[14px] md:text-[15px] lg:text-[17px] focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">Select Account</option>
               {ACCOUNTS.map((a) => (
@@ -508,7 +510,7 @@ const Transactions = () => {
             </select>
           </div>
           <div>
-            <label className="text-[20px] text-[#212121] font-medium mb-1 block">
+            <label className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] text-[#212121] font-medium mb-1 block">
               Amount
             </label>
             <input
@@ -520,7 +522,7 @@ const Transactions = () => {
                 setFilter("amountMin", val);
                 setFilter("amountMax", val);
               }}
-              className="w-full border border-gray-200 rounded-[10px] px-3 py-2 text-[#25282C] text-[17px] focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-200 rounded-[10px] px-3 py-2 text-[#25282C] text-[13px] sm:text-[14px] md:text-[15px] lg:text-[17px] focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
         </div>
@@ -539,7 +541,7 @@ const Transactions = () => {
                 amountMax: "",
               })
             }
-            className="mt-3 text-[17px] text-red-400 hover:text-red-600 flex items-center gap-1"
+            className="mt-3 text-[13px] sm:text-[14px] md:text-[15px] lg:text-[17px] text-red-400 hover:text-red-600 flex items-center gap-1"
           >
             <X size={12} /> Clear filters
           </button>
