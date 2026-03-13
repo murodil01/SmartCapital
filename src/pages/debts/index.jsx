@@ -4,337 +4,191 @@ import React from "react";
 const INITIAL_DEBTS = [
   {
     id: 1,
-
     person: "Akmal",
-
     type: "I owe",
-
     amt: -120000,
-
     date: "2025-06-06",
-
     due: "2025-07-06",
-
     status: "Open",
   },
-
   {
     id: 2,
-
     person: "Jasur",
-
     type: "Owes me",
-
     amt: 1000000,
-
     date: "2025-06-05",
-
     due: "2025-07-05",
-
     status: "Open",
   },
-
   {
     id: 3,
-
     person: "Nozim",
-
     type: "I owe",
-
     amt: -120000,
-
     date: "2025-06-04",
-
     due: "2025-07-04",
-
     status: "Closed",
   },
-
   {
     id: 4,
-
     person: "Dilshod",
-
     type: "I owe",
-
     amt: -215000,
-
     date: "2025-06-03",
-
     due: "2025-07-03",
-
     status: "Open",
   },
-
   {
     id: 5,
-
     person: "Malika",
-
     type: "Owes me",
-
     amt: 1000000,
-
     date: "2025-06-06",
-
     due: "2025-07-06",
-
     status: "Open",
   },
-
   {
     id: 6,
-
     person: "Sevinch",
-
     type: "I owe",
-
     amt: -120000,
-
     date: "2025-06-06",
-
     due: "2025-07-06",
-
     status: "Closed",
   },
-
   {
     id: 7,
-
     person: "Muslima",
-
     type: "Owes me",
-
     amt: 1500000,
-
     date: "2025-06-06",
-
     due: "2025-07-06",
-
     status: "Closed",
   },
-
   {
     id: 8,
-
     person: "Sevara",
-
     type: "I owe",
-
     amt: -120000,
-
     date: "2025-06-06",
-
     due: "2025-07-06",
-
     status: "Open",
   },
-
   {
     id: 9,
-
     person: "Bobur",
-
     type: "I owe",
-
     amt: -300000,
-
     date: "2025-06-01",
-
     due: "2025-07-01",
-
     status: "Open",
   },
-
   {
     id: 10,
-
     person: "Zulfiya",
-
     type: "Owes me",
-
     amt: 500000,
-
     date: "2025-06-02",
-
     due: "2025-07-02",
-
     status: "Open",
   },
-
   {
     id: 11,
-
     person: "Kamol",
-
     type: "I owe",
-
     amt: -450000,
-
     date: "2025-05-28",
-
     due: "2025-06-28",
-
     status: "Closed",
   },
-
   {
     id: 12,
-
     person: "Sherzod",
-
     type: "Owes me",
-
     amt: 2000000,
-
     date: "2025-05-25",
-
     due: "2025-06-25",
-
     status: "Open",
   },
-
   {
     id: 13,
-
     person: "Nodira",
-
     type: "I owe",
-
     amt: -180000,
-
     date: "2025-05-20",
-
     due: "2025-06-20",
-
     status: "Open",
   },
-
   {
     id: 14,
-
     person: "Umid",
-
     type: "Owes me",
-
     amt: 750000,
-
     date: "2025-05-18",
-
     due: "2025-06-18",
-
     status: "Closed",
   },
-
   {
     id: 15,
-
     person: "Hulkar",
-
     type: "I owe",
-
     amt: -90000,
-
     date: "2025-05-15",
-
     due: "2025-06-15",
-
     status: "Open",
   },
-
   {
     id: 16,
-
     person: "Sanjar",
-
     type: "Owes me",
-
     amt: 1200000,
-
     date: "2025-05-12",
-
     due: "2025-06-12",
-
     status: "Open",
   },
-
   {
     id: 17,
-
     person: "Feruza",
-
     type: "I owe",
-
     amt: -600000,
-
     date: "2025-05-10",
-
     due: "2025-06-10",
-
     status: "Closed",
   },
-
   {
     id: 18,
-
     person: "Otabek",
-
     type: "Owes me",
-
     amt: 350000,
-
     date: "2025-05-08",
-
     due: "2025-06-08",
-
     status: "Open",
   },
-
   {
     id: 19,
-
     person: "Lola",
-
     type: "I owe",
-
     amt: -250000,
-
     date: "2025-05-05",
-
     due: "2025-06-05",
-
     status: "Open",
   },
-
   {
     id: 20,
-
     person: "Davron",
-
     type: "Owes me",
-
     amt: 900000,
-
     date: "2025-05-01",
-
     due: "2025-06-01",
-
     status: "Closed",
   },
-
   {
     id: 21,
-
     person: "Iroda",
-
     type: "I owe",
-
     amt: -130000,
-
     date: "2025-04-28",
-
     due: "2025-05-28",
-
     status: "Open",
   },
 ];
@@ -342,8 +196,6 @@ const INITIAL_DEBTS = [
 const ITEMS_PER_PAGE = 10;
 
 const fmt = (n) => Math.abs(n).toLocaleString("uz-UZ").replace(/,/g, " ");
-
-// Modal tashqarisida (yoki fayl boshida) qo‘yamiz
 
 const Field = ({ label, children }) => (
   <div style={{ marginBottom: 14 }}>
@@ -360,7 +212,6 @@ const Field = ({ label, children }) => (
     >
       {label}
     </label>
-
     {children}
   </div>
 );
@@ -404,48 +255,39 @@ function Modal({ onClose, onSave, editItem }) {
         ? -Math.abs(Number(form.amt))
         : Math.abs(Number(form.amt));
 
-    onSave({ ...form, amt });
+    onSave({ ...form, amt, id: editItem?.id });
   };
 
   return (
     <div
       style={{
         position: "fixed",
-
         inset: 0,
-
         background: "rgba(0,0,0,0.35)",
-
         zIndex: 50,
-
         display: "flex",
-
         alignItems: "center",
-
         justifyContent: "center",
+        padding: "16px",
       }}
     >
       <div
         style={{
           background: "#fff",
-
           borderRadius: 20,
-
           padding: 28,
-
-          width: 380,
-
+          width: "100%",
+          maxWidth: 380,
           boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
+          maxHeight: "90vh",
+          overflowY: "auto",
         }}
       >
         <h3
           style={{
             fontFamily: "Georgia,serif",
-
             fontSize: 19,
-
             marginTop: 0,
-
             marginBottom: 20,
           }}
         >
@@ -466,46 +308,38 @@ function Modal({ onClose, onSave, editItem }) {
         </Field>
 
         <Field label="Type">
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {["I owe", "Owes me"].map((t) => (
               <button
                 key={t}
                 onClick={() => setForm((f) => ({ ...f, type: t }))}
                 style={{
-                  flex: 1,
-
+                  flex: "1 1 auto",
                   padding: "9px 0",
-
                   borderRadius: 10,
-
                   border: "1.5px solid",
-
                   cursor: "pointer",
-
                   fontWeight: 700,
-
                   fontSize: 13,
-
                   borderColor:
                     form.type === t
                       ? t === "I owe"
                         ? "#EF4444"
                         : "#10B981"
                       : "#E5E7EB",
-
                   background:
                     form.type === t
                       ? t === "I owe"
                         ? "#FFF1F2"
                         : "#F0FDF4"
                       : "#fff",
-
                   color:
                     form.type === t
                       ? t === "I owe"
                         ? "#EF4444"
                         : "#10B981"
                       : "#374151",
+                  minWidth: "100px",
                 }}
               >
                 {t}
@@ -524,24 +358,74 @@ function Modal({ onClose, onSave, editItem }) {
           />
         </Field>
 
-        {/* Qolgan date, due va status fieldlar ham xuddi shu tarzda */}
+        <Field label="Date">
+          <input
+            type="date"
+            value={form.date}
+            onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+            style={inputStyle}
+          />
+        </Field>
+
+        <Field label="Due Date">
+          <input
+            type="date"
+            value={form.due}
+            onChange={(e) => setForm((f) => ({ ...f, due: e.target.value }))}
+            style={inputStyle}
+          />
+        </Field>
+
+        <Field label="Status">
+          <div style={{ display: "flex", gap: 8 }}>
+            {["Open", "Closed"].map((s) => (
+              <button
+                key={s}
+                onClick={() => setForm((f) => ({ ...f, status: s }))}
+                style={{
+                  flex: 1,
+                  padding: "9px 0",
+                  borderRadius: 10,
+                  border: "1.5px solid",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  borderColor:
+                    form.status === s
+                      ? s === "Open"
+                        ? "#6366F1"
+                        : "#9CA3AF"
+                      : "#E5E7EB",
+                  background:
+                    form.status === s
+                      ? s === "Open"
+                        ? "#EEF2FF"
+                        : "#F9FAFB"
+                      : "#fff",
+                  color:
+                    form.status === s
+                      ? s === "Open"
+                        ? "#6366F1"
+                        : "#4B5563"
+                      : "#374151",
+                }}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </Field>
 
         <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
           <button
             onClick={onClose}
             style={{
               flex: 1,
-
               padding: "10px 0",
-
               borderRadius: 10,
-
               border: "1.5px solid #E5E7EB",
-
               background: "#fff",
-
               fontWeight: 600,
-
               cursor: "pointer",
             }}
           >
@@ -552,19 +436,12 @@ function Modal({ onClose, onSave, editItem }) {
             onClick={handle}
             style={{
               flex: 1,
-
               padding: "10px 0",
-
               borderRadius: 10,
-
               border: "none",
-
               background: "#1D3557",
-
               color: "#fff",
-
               fontWeight: 700,
-
               cursor: "pointer",
             }}
           >
@@ -578,13 +455,12 @@ function Modal({ onClose, onSave, editItem }) {
 
 function WaveCard({ title, amount, sub, positive }) {
   const color = positive ? "#10B981" : "#EF4444";
-
   const bg = positive ? "#F0FDF4" : "#FFF1F2";
 
   return (
     <div
       style={{
-        flex: 1,
+        flex: "1 1 250px",
         minWidth: 200,
         background: bg,
         borderRadius: 16,
@@ -613,7 +489,6 @@ function WaveCard({ title, amount, sub, positive }) {
             d="M0,40 C60,10 120,55 180,30 C240,5 270,45 300,35 L300,60 L0,60 Z"
             fill={color}
           />
-
           <path
             d="M0,50 C80,25 160,55 230,35 C265,25 285,45 300,40 L300,60 L0,60 Z"
             fill={color}
@@ -625,11 +500,8 @@ function WaveCard({ title, amount, sub, positive }) {
       <div
         style={{
           fontSize: 13,
-
           fontWeight: 700,
-
           color: "#374151",
-
           marginBottom: 8,
         }}
       >
@@ -638,10 +510,11 @@ function WaveCard({ title, amount, sub, positive }) {
 
       <div
         style={{
-          fontSize: 26,
+          fontSize: "clamp(20px, 4vw, 26px)",
           fontWeight: 800,
           color,
           letterSpacing: "-0.5px",
+          wordBreak: "break-word",
         }}
       >
         {positive ? "+" : "-"}
@@ -677,20 +550,17 @@ function DeleteModal({ item, onClose, onConfirm }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        padding: "16px",
       }}
     >
       <div
         style={{
           background: "#fff",
-
           borderRadius: 20,
-
           padding: 32,
-
-          width: 340,
-
+          width: "100%",
+          maxWidth: 340,
           boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
-
           textAlign: "center",
         }}
       >
@@ -702,7 +572,14 @@ function DeleteModal({ item, onClose, onConfirm }) {
           Delete Record?
         </h3>
 
-        <p style={{ color: "#6B7280", fontSize: 14, marginBottom: 24 }}>
+        <p
+          style={{
+            color: "#6B7280",
+            fontSize: 14,
+            marginBottom: 24,
+            wordBreak: "break-word",
+          }}
+        >
           <strong>{item.person}</strong> — {item.type === "I owe" ? "-" : "+"}
           {fmt(item.amt)} UZS will be removed.
         </p>
@@ -712,17 +589,11 @@ function DeleteModal({ item, onClose, onConfirm }) {
             onClick={onClose}
             style={{
               flex: 1,
-
               padding: "11px 0",
-
               borderRadius: 10,
-
               border: "1.5px solid #E5E7EB",
-
               background: "#fff",
-
               fontWeight: 600,
-
               cursor: "pointer",
             }}
           >
@@ -733,19 +604,12 @@ function DeleteModal({ item, onClose, onConfirm }) {
             onClick={onConfirm}
             style={{
               flex: 1,
-
               padding: "11px 0",
-
               borderRadius: 10,
-
               border: "none",
-
               background: "#EF4444",
-
               color: "#fff",
-
               fontWeight: 700,
-
               cursor: "pointer",
             }}
           >
@@ -760,31 +624,29 @@ function DeleteModal({ item, onClose, onConfirm }) {
 export default function Debts() {
   const [records, setRecords] = useState(INITIAL_DEBTS);
   const [page, setPage] = useState(1);
-  const [modal, setModal] = useState(null); // null | "receivable" | "debt" | {edit}
+  const [modal, setModal] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [filterType, setFilterType] = useState("All");
-  const [filterStatus, setFilterStatus] = useState("All");
+  const [filterType] = useState("All");
+  const [filterStatus] = useState("All");
+
   const filtered = records.filter(
     (r) =>
       (filterType === "All" || r.type === filterType) &&
       (filterStatus === "All" || r.status === filterStatus),
   );
+
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginated = filtered.slice(
     (page - 1) * ITEMS_PER_PAGE,
-
     page * ITEMS_PER_PAGE,
   );
+
   const totalDebts = records
-
     .filter((r) => r.type === "I owe")
-
     .reduce((s, r) => s + Math.abs(r.amt), 0);
 
   const totalRec = records
-
     .filter((r) => r.type === "Owes me")
-
     .reduce((s, r) => s + r.amt, 0);
 
   const debtPeople = new Set(
@@ -796,22 +658,19 @@ export default function Debts() {
   ).size;
 
   const handleSave = (form) => {
-    if (modal?.id) {
+    if (form.id) {
       setRecords((rs) =>
-        rs.map((r) => (r.id === modal.id ? { ...r, ...form } : r)),
+        rs.map((r) => (r.id === form.id ? { ...r, ...form } : r)),
       );
     } else {
       setRecords((rs) => [...rs, { ...form, id: Date.now() }]);
     }
-
     setModal(null);
   };
 
   const handleDelete = () => {
     setRecords((rs) => rs.filter((r) => r.id !== deleteTarget.id));
-
     setDeleteTarget(null);
-
     if (page > Math.ceil((filtered.length - 1) / ITEMS_PER_PAGE))
       setPage((p) => Math.max(1, p - 1));
   };
@@ -827,7 +686,6 @@ export default function Debts() {
   };
 
   const pageNums = [];
-
   for (let i = 1; i <= totalPages; i++) pageNums.push(i);
 
   const visiblePages = pageNums.filter(
@@ -857,20 +715,193 @@ export default function Debts() {
   return (
     <div>
       <style>{`
-        tr:hover td { background:#FAFAFA; }
-        .act-btn { background:none; border:none; cursor:pointer; padding:5px; border-radius:7px; transition:background 0.15s; }
-        .act-btn:hover { background:#F3F4F6; }
-        .page-btn { min-width:34px; height:34px; border-radius:8px; border:none; font-size:13px; font-weight:600; cursor:pointer; background:#fff; color:#374151; border:1px solid #E5E7EB; }
-        .page-btn:hover { background:#EEF2FF; color:#6366F1; }
-        .filter-btn { padding:6px 14px; border-radius:8px; border:1.5px solid #E5E7EB; background:#fff; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; }
-        .filter-btn.active { border-color:#6366F1; background:#EEF2FF; color:#6366F1; }
-        @media(max-width:640px){ .hide-mobile{ display:none!important; } }
-
+        * {
+          box-sizing: border-box;
+        }
+        
+        tr:hover td { 
+          background: #FAFAFA; 
+        }
+        
+        .act-btn { 
+          background: none; 
+          border: none; 
+          cursor: pointer; 
+          padding: 5px; 
+          border-radius: 7px; 
+          transition: background 0.15s; 
+        }
+        
+        .act-btn:hover { 
+          background: #F3F4F6; 
+        }
+        
+        .page-btn { 
+          min-width: 34px; 
+          height: 34px; 
+          border-radius: 8px; 
+          border: none; 
+          font-size: 13px; 
+          font-weight: 600; 
+          cursor: pointer; 
+          background: #fff; 
+          color: #374151; 
+          border: 1px solid #E5E7EB; 
+        }
+        
+        .page-btn:hover:not(:disabled) { 
+          background: #EEF2FF; 
+          color: #6366F1; 
+        }
+        
+        .page-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        
+        .filter-btn { 
+          padding: 6px 14px; 
+          border-radius: 8px; 
+          border: 1.5px solid #E5E7EB; 
+          background: #fff; 
+          font-size: 12px; 
+          font-weight: 600; 
+          cursor: pointer; 
+          transition: all 0.15s; 
+        }
+        
+        .filter-btn.active { 
+          border-color: #6366F1; 
+          background: #EEF2FF; 
+          color: #6366F1; 
+        }
+        
+        /* Desktop styles */
+        .desktop-table {
+          display: table;
+          width: 100%;
+        }
+        
+        .mobile-cards {
+          display: none;
+        }
+        
+        /* Tablet styles */
+        @media (max-width: 1024px) {
+          .wave-cards-container {
+            flex-direction: column;
+          }
+          
+          .wave-cards-container > div {
+            width: 100%;
+          }
+        }
+        
+        /* Mobile styles */
+        @media (max-width: 768px) {
+          .hide-mobile { 
+            display: none !important; 
+          }
+          
+          .desktop-table {
+            display: none !important;
+          }
+          
+          .mobile-cards {
+            display: block !important;
+          }
+          
+          .filters-section {
+            flex-direction: column;
+            align-items: flex-start !important;
+            width: 100%;
+          }
+          
+          .filters-section h3 {
+            margin-bottom: 10px;
+          }
+          
+          .filter-buttons-container {
+            width: 100%;
+            justify-content: space-between;
+          }
+          
+          .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            flex: 1;
+          }
+          
+          .filter-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+            flex: 1 1 auto;
+          }
+          
+          .action-buttons {
+            flex-direction: column;
+            width: 100%;
+          }
+          
+          .action-buttons button {
+            width: 100%;
+          }
+          
+          .pagination-wrapper {
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+          }
+          
+          .pagination-controls {
+            flex-wrap: wrap;
+            justify-content: center;
+            order: 2;
+          }
+          
+          .page-info {
+            order: 1;
+          }
+          
+          .page-numbers {
+            display: none;
+          }
+          
+          .page-btn {
+            min-width: 40px;
+            height: 40px;
+          }
+        }
+        
+        /* Small mobile styles */
+        @media (max-width: 480px) {
+          .filter-group {
+            width: 100%;
+          }
+          
+          .filter-btn {
+            flex: 1 1 calc(50% - 4px);
+          }
+          
+          .filter-divider {
+            display: none;
+          }
+          
+          .summary-cards {
+            gap: 8px;
+          }
+          
+          .summary-cards > div {
+            padding: 16px;
+          }
+        }
       `}</style>
 
-      <div className="shadow-sm bg-white p-5 border border-[#E0E0E0] rounded-2xl">
+      <div className="shadow-sm bg-white p-3 sm:p-5 border border-[#E0E0E0] rounded-2xl">
         {/* Header */}
         <div
+          className="action-buttons"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -882,7 +913,7 @@ export default function Debts() {
         >
           <h3
             style={{
-              fontSize: 24,
+              fontSize: "clamp(18px, 4vw, 24px)",
               color: "#1F2937",
               margin: 0,
             }}
@@ -890,24 +921,28 @@ export default function Debts() {
             Total Debts and Receivables
           </h3>
 
-          <div style={{ display: "flex", gap: 10 }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              flexWrap: "wrap",
+              width: "100%",
+              maxWidth: "400px",
+            }}
+          >
             <button
               onClick={() => setModal("receivable")}
               style={{
+                flex: "1 1 auto",
                 background: "#10B981",
                 color: "#fff",
-
                 border: "none",
-
                 borderRadius: 11,
-
                 padding: "10px 18px",
-
                 fontWeight: 700,
-
                 fontSize: 13,
-
                 cursor: "pointer",
+                whiteSpace: "nowrap",
               }}
             >
               + Add Receivable
@@ -916,21 +951,16 @@ export default function Debts() {
             <button
               onClick={() => setModal("debt")}
               style={{
+                flex: "1 1 auto",
                 background: "#EF4444",
-
                 color: "#fff",
-
                 border: "none",
-
                 borderRadius: 11,
-
                 padding: "10px 18px",
-
                 fontWeight: 700,
-
                 fontSize: 13,
-
                 cursor: "pointer",
+                whiteSpace: "nowrap",
               }}
             >
               + Add Debt
@@ -939,7 +969,15 @@ export default function Debts() {
         </div>
 
         {/* Summary Cards */}
-        <div className="flex flex-col lg:flex-row gap-4 mb-7">
+        <div
+          className="wave-cards-container summary-cards"
+          style={{
+            display: "flex",
+            gap: "16px",
+            marginBottom: "28px",
+            flexWrap: "wrap",
+          }}
+        >
           <WaveCard
             title="Total Debts (I owe)"
             amount={totalDebts}
@@ -956,73 +994,45 @@ export default function Debts() {
         </div>
 
         {/* Table Card */}
-        <div className="bg-white rounded-2xl shadow p-5 ">
+        <div className="bg-white rounded-2xl shadow p-3 sm:p-5">
           {/* Table header */}
-          <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
+          <div
+            className="filters-section"
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "12px",
+              marginBottom: "16px",
+            }}
+          >
             <h3
               style={{
-                fontSize: 17,
+                fontSize: "clamp(15px, 3vw, 17px)",
                 color: "#1F2937",
+                margin: 0,
               }}
             >
               Expense Transactions
             </h3>
-
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-              {["All", "I owe", "Owes me"].map((t) => (
-                <button
-                  key={t}
-                  className={`filter-btn${filterType === t ? " active" : ""}`}
-                  onClick={() => {
-                    setFilterType(t);
-
-                    setPage(1);
-                  }}
-                >
-                  {t}
-                </button>
-              ))}
-
-              <div
-                style={{ width: 1, background: "#E5E7EB", margin: "0 2px" }}
-              />
-
-              {["All", "Open", "Closed"].map((s) => (
-                <button
-                  key={s}
-                  className={`filter-btn${filterStatus === s ? " active" : ""}`}
-                  onClick={() => {
-                    setFilterStatus(s);
-
-                    setPage(1);
-                  }}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse">
+            {/* Desktop Table View */}
+            <table className="min-w-full border-collapse desktop-table">
               <thead>
                 <tr>
                   <th style={thStyle}>People</th>
-
                   <th style={thStyle}>Type</th>
-
                   <th style={thStyle}>Amount</th>
-
                   <th style={{ ...thStyle }} className="hide-mobile">
                     Date
                   </th>
-
                   <th style={{ ...thStyle }} className="hide-mobile">
                     Due Date
                   </th>
-
                   <th style={thStyle}>Status</th>
-
                   <th style={{ ...thStyle, textAlign: "right" }}>Action</th>
                 </tr>
               </thead>
@@ -1067,7 +1077,6 @@ export default function Debts() {
                               flexShrink: 0,
                             }}
                           />
-
                           <span
                             style={{
                               color: r.type === "I owe" ? "#EF4444" : "#10B981",
@@ -1082,9 +1091,7 @@ export default function Debts() {
                       <td
                         style={{
                           ...tdStyle,
-
                           fontWeight: 700,
-
                           color: r.type === "I owe" ? "#EF4444" : "#10B981",
                         }}
                       >
@@ -1095,7 +1102,6 @@ export default function Debts() {
                       <td style={tdStyle} className="hide-mobile">
                         {r.date}
                       </td>
-
                       <td style={tdStyle} className="hide-mobile">
                         {r.due || "—"}
                       </td>
@@ -1115,6 +1121,7 @@ export default function Debts() {
                             background:
                               r.status === "Open" ? "#EEF2FF" : "#F9FAFB",
                             color: r.status === "Open" ? "#6366F1" : "#9CA3AF",
+                            whiteSpace: "nowrap",
                           }}
                         >
                           {r.status}
@@ -1165,58 +1172,240 @@ export default function Debts() {
                 )}
               </tbody>
             </table>
+
+            {/* Mobile Card View */}
+            <div className="mobile-cards">
+              {paginated.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: 40,
+                    color: "#9CA3AF",
+                    fontSize: 14,
+                  }}
+                >
+                  No records found
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "12px",
+                  }}
+                >
+                  {paginated.map((r) => (
+                    <div
+                      key={r.id}
+                      style={{
+                        background: "white",
+                        border: "1px solid #E5E7EB",
+                        borderRadius: "12px",
+                        padding: "16px",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                      }}
+                    >
+                      {/* Card Header */}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: "12px",
+                        }}
+                      >
+                        <span style={{ fontWeight: 700, fontSize: "16px" }}>
+                          {r.person}
+                        </span>
+                        <span
+                          style={{
+                            padding: "4px 10px",
+                            borderRadius: "16px",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            background:
+                              r.type === "I owe" ? "#FEF2F2" : "#F0FDF4",
+                            color: r.type === "I owe" ? "#EF4444" : "#10B981",
+                          }}
+                        >
+                          {r.type}
+                        </span>
+                      </div>
+
+                      {/* Amount */}
+                      <div
+                        style={{
+                          fontSize: "20px",
+                          fontWeight: 700,
+                          color: r.type === "I owe" ? "#EF4444" : "#10B981",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        {r.type === "I owe" ? "-" : "+"}
+                        {fmt(r.amt)} UZS
+                      </div>
+
+                      {/* Dates */}
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "16px",
+                          fontSize: "13px",
+                          color: "#6B7280",
+                          marginBottom: "12px",
+                        }}
+                      >
+                        <span>📅 {r.date}</span>
+                        <span>⏰ {r.due || "—"}</span>
+                      </div>
+
+                      {/* Footer */}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <button
+                          onClick={() => toggleStatus(r.id)}
+                          style={{
+                            padding: "4px 14px",
+                            borderRadius: "20px",
+                            border: "1.5px solid",
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            borderColor:
+                              r.status === "Open" ? "#6366F1" : "#D1D5DB",
+                            background:
+                              r.status === "Open" ? "#EEF2FF" : "#F9FAFB",
+                            color: r.status === "Open" ? "#6366F1" : "#9CA3AF",
+                          }}
+                        >
+                          {r.status}
+                        </button>
+
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <button
+                            className="act-btn"
+                            onClick={() => setModal(r)}
+                            title="Edit"
+                          >
+                            <svg
+                              width="18"
+                              height="18"
+                              fill="none"
+                              stroke="#6B7280"
+                              strokeWidth="1.8"
+                              viewBox="0 0 24 24"
+                            >
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            </svg>
+                          </button>
+                          <button
+                            className="act-btn"
+                            onClick={() => setDeleteTarget(r)}
+                            title="Delete"
+                          >
+                            <svg
+                              width="18"
+                              height="18"
+                              fill="none"
+                              stroke="#6B7280"
+                              strokeWidth="1.8"
+                              viewBox="0 0 24 24"
+                            >
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                              <path d="M10 11v6M14 11v6" />
+                              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Pagination */}
-          <div className="flex flex-wrap justify-between items-center gap-2 p-4 border-t border-gray-200">
-            <span style={{ fontSize: 12, color: "#9CA3AF" }}>
+          <div className="flex flex-wrap justify-between items-center gap-4 border-t border-gray-200 pt-4 mt-4">
+            {/* Left info */}
+            <span className="text-xs text-gray-400 order-1 sm:order-1">
               Showing{" "}
               {filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1}–
               {Math.min(page * ITEMS_PER_PAGE, filtered.length)} of{" "}
               {filtered.length} records
             </span>
 
-            <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+            {/* Center pagination */}
+            <div className="flex gap-2 items-center order-3 sm:order-2 mx-auto flex-wrap">
+              {/* Previous button */}
               <button
-                className="page-btn"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                style={{ padding: "0 12px" }}
+                style={{
+                  padding: "0 12px",
+                  height: 32,
+                  borderRadius: 8,
+                  border: "1.5px solid #E5E7EB",
+                  background: "#fff",
+                  color: "#374151",
+                  cursor: page === 1 ? "not-allowed" : "pointer",
+                }}
               >
                 ‹ Previous
               </button>
 
-              {visiblePages.map((p, i, arr) => (
-                <React.Fragment key={p}>
-                  {i > 0 && arr[i - 1] !== p - 1 && (
-                    <span style={{ color: "#9CA3AF", fontSize: 13 }}>…</span>
-                  )}
+              {/* Page numbers */}
+              <div className="flex gap-1">
+                {visiblePages.map((p, i, arr) => (
+                  <React.Fragment key={p}>
+                    {i > 0 && arr[i - 1] !== p - 1 && (
+                      <span style={{ color: "#9CA3AF", fontSize: 13 }}>…</span>
+                    )}
+                    <button
+                      onClick={() => setPage(p)}
+                      style={{
+                        padding: "0 10px",
+                        height: 32,
+                        borderRadius: 8,
+                        border: `1.5px solid ${page === p ? "#1D3557" : "#E5E7EB"}`,
+                        background: page === p ? "#1D3557" : "#fff",
+                        color: page === p ? "#fff" : "#374151",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {p}
+                    </button>
+                  </React.Fragment>
+                ))}
+              </div>
 
-                  <button
-                    className="page-btn"
-                    onClick={() => setPage(p)}
-                    style={{
-                      background: page === p ? "#1D3557" : "#fff",
-                      color: page === p ? "#fff" : "#374151",
-                      borderColor: page === p ? "#1D3557" : "#E5E7EB",
-                    }}
-                  >
-                    {p}
-                  </button>
-                </React.Fragment>
-              ))}
-
+              {/* Next button */}
               <button
-                className="page-btn"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                style={{ padding: "0 12px" }}
+                style={{
+                  padding: "0 12px",
+                  height: 32,
+                  borderRadius: 8,
+                  border: "1.5px solid #E5E7EB",
+                  background: "#fff",
+                  color: "#374151",
+                  cursor: page === totalPages ? "not-allowed" : "pointer",
+                }}
               >
                 Next ›
               </button>
             </div>
 
-            <span style={{ fontSize: 12, color: "#9CA3AF" }}>
+            {/* Right info */}
+            <span className="text-xs text-gray-400 order-2 sm:order-3">
               Page {page} of {totalPages || 1}
             </span>
           </div>
