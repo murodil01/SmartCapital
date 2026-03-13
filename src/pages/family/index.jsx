@@ -913,7 +913,6 @@ export default function Family() {
             <div style={s.card}>
               <div style={s.cardHeader}>
                 <span
-                  style={{ ...s.cardTitle, fontFamily: "'Syne', sans-serif" }}
                 >
                   Shared Goals
                 </span>
