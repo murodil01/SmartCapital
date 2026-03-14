@@ -81,19 +81,7 @@ function CurrencyDropdown({ value, onChange, exclude }) {
     <div style={{ position: "relative" }}>
       <button
         onClick={() => setOpen((o) => !o)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "9px 12px",
-          border: "1.5px solid #E5E7EB",
-          borderRadius: 10,
-          background: "#fff",
-          cursor: "pointer",
-          minWidth: 120,
-          justifyContent: "space-between",
-          fontSize: 15,
-        }}
+        className="flex items-center justify-between gap-2 px-2.5 py-1.75 sm:px-.75 sm:py-2 md:px-3 md:py-2.25 border-[1.5px] border-gray-200 rounded-[10px] bg-white cursor-pointer min-w-25 sm:min-w-27.5 md:min-w-30 text-[13px] sm:text-[14px] md:text-[15px]"
       >
         <img src={cur.flag} width={20} />
         <span style={{ fontWeight: 600 }}>{cur.code}</span>
@@ -197,122 +185,63 @@ function ChangePasswordModal({ onClose }) {
   );
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.35)",
-        zIndex: 50,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 20,
-          padding: 32,
-          width: 380,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
-        }}
-      >
-        <h2
-          style={{
-            fontFamily: "Georgia, serif",
-            fontSize: 20,
-            marginBottom: 22,
-            marginTop: 0,
-          }}
-        >
+    <div className="fixed inset-0 bg-black/35 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-[20px] p-6 sm:p-8 md:p-10 w-full max-w-95 shadow-[0_20px_60px_rgba(0,0,0,0.18)]">
+        {/* Title */}
+        <h3 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold mb-5 mt-0">
           Change Password
-        </h2>
+        </h3>
+
+        {/* Password Fields */}
         {["current", "newPass", "confirm"].map((field, i) => (
-          <div key={field} style={{ marginBottom: 14 }}>
-            <label
-              style={{
-                fontSize: 12,
-                color: "#6B7280",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                letterSpacing: 0.8,
-              }}
-            >
+          <div key={field} className="mb-3">
+            <label className="block text-[10px] sm:text-[11px] md:text-[12px] font-semibold text-gray-500 uppercase tracking-[0.8px]">
               {["Current Password", "New Password", "Confirm New Password"][i]}
             </label>
-            <div style={{ position: "relative", marginTop: 5 }}>
+            <div className="relative mt-1">
               <input
                 type={show[field] ? "text" : "password"}
                 value={form[field]}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, [field]: e.target.value }))
                 }
-                style={{
-                  width: "100%",
-                  border: "1.5px solid #E5E7EB",
-                  borderRadius: 10,
-                  padding: "9px 40px 9px 12px",
-                  fontSize: 15,
-                  outline: "none",
-                  boxSizing: "border-box",
-                }}
                 placeholder="••••••••"
+                className="w-full border-[1.5px] border-gray-200 rounded-[10px]  py-2 px-3 pr-9 md:py-2.25 md:px-3 md:pr-10 text-[13px] sm:text-[14px] md:text-[15px] outline-none box-border"
               />
               <button
+                type="button"
                 onClick={() => setShow((s) => ({ ...s, [field]: !s[field] }))}
-                style={{
-                  position: "absolute",
-                  right: 10,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
-                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer p-0"
               >
                 <EyeIcon visible={show[field]} />
               </button>
             </div>
           </div>
         ))}
+
+        {/* Error / Success Messages */}
         {error && (
-          <p style={{ color: "#EF4444", fontSize: 13, marginBottom: 12 }}>
+          <p className="text-red-500 text-[12px] sm:text-[13px] mb-3">
             {error}
           </p>
         )}
         {success && (
-          <p style={{ color: "#10B981", fontSize: 13, marginBottom: 12 }}>
+          <p className="text-green-500 text-[12px] sm:text-[13px] mb-3">
             Password changed successfully!
           </p>
         )}
-        <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row gap-2 mt-5">
           <button
             onClick={onClose}
-            style={{
-              flex: 1,
-              padding: "11px 0",
-              borderRadius: 10,
-              border: "1.5px solid #E5E7EB",
-              background: "#fff",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
+            className="flex-1 py-2.25 sm:py-2.5 rounded-[10px] border-[1.5px] border-gray-200 bg-white font-semibold cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handle}
-            style={{
-              flex: 1,
-              padding: "11px 0",
-              borderRadius: 10,
-              border: "none",
-              background: "#1D3557",
-              color: "#fff",
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
+            className="flex-1 py-2.25 sm:py-2.5 rounded-[10px] border-none bg-[#1D3557] text-white font-bold cursor-pointer"
           >
             Save
           </button>
@@ -388,28 +317,12 @@ export default function Settings() {
             marginBottom: 24,
           }}
         >
-          <h1
-            style={{
-              fontFamily: "Georgia, serif",
-              fontSize: 26,
-              color: "#1F2937",
-              margin: 0,
-            }}
-          >
+          <h3 className="text-[18px] sm:text-[20px] md:text-[22px] lg:text-[24px] xl:text-[26px] text-gray-800 ">
             My Profile
-          </h1>
+          </h3>
           <button
             onClick={() => setShowPassModal(true)}
-            style={{
-              background: "#1D3557",
-              color: "#fff",
-              border: "none",
-              borderRadius: 12,
-              padding: "10px 20px",
-              fontWeight: 700,
-              fontSize: 14,
-              cursor: "pointer",
-            }}
+            className="bg-[#1D3557] text-white border-none rounded-xl px-5 py-2.5 font-bold text-[14px] cursor-pointer"
           >
             Change Password
           </button>
@@ -417,14 +330,7 @@ export default function Settings() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Profile Card */}
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 20,
-              boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
-              padding: 28,
-            }}
-          >
+          <div className="bg-white rounded-[20px] shadow-[0_2px_16px_rgba(0,0,0,0.07)] p-6 sm:p-7 md:p-8">
             {/* Avatar + Info */}
             <div className="flex flex-col sm:flex-row items-start gap-4 mb-6">
               <div
@@ -528,9 +434,7 @@ export default function Settings() {
                 )}
               </div>
               <div>
-                <div
-                  style={{ fontWeight: 700, fontSize: 17, color: "#1F2937" }}
-                >
+                <div className="font-bold text-[14px] sm:text-[15px] md:text-[16px] lg:text-[17px] text-gray-800">
                   {displayName}
                 </div>
                 <div style={{ fontSize: 13, color: "#6B7280", marginTop: 3 }}>
@@ -556,16 +460,7 @@ export default function Settings() {
                   setProfile((p) => ({ ...p, name: e.target.value }))
                 }
                 placeholder="Enter your name"
-                style={{
-                  display: "block",
-                  width: "100%",
-                  marginTop: 6,
-                  border: "1.5px solid #E5E7EB",
-                  borderRadius: 10,
-                  padding: "10px 14px",
-                  fontSize: 14,
-                  color: "#374151",
-                }}
+                className="block w-full mt-1.5 border-[1.5px] border-gray-300 rounded-[10px] py-2 px-3 sm:py-2.25 sm:px-3.25 md:py-2.5 md:px-3.5 text-[12px] sm:text-[13px] md:text-[14px] text-gray-700"
               />
             </div>
 
@@ -582,33 +477,14 @@ export default function Settings() {
                   setProfile((p) => ({ ...p, surname: e.target.value }))
                 }
                 placeholder="Enter your surname"
-                style={{
-                  display: "block",
-                  width: "100%",
-                  marginTop: 6,
-                  border: "1.5px solid #E5E7EB",
-                  borderRadius: 10,
-                  padding: "10px 14px",
-                  fontSize: 14,
-                  color: "#374151",
-                }}
+                className="block w-full mt-1.5 border-[1.5px] border-gray-300 rounded-[10px] py-2 px-3 sm:py-2.25 sm:px-3.25 md:py-2.5 md:px-3.5 text-[12px] sm:text-[13px] md:text-[14px] text-gray-700"
               />
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <div className="flex justify-end">
               <button
                 onClick={handleSave}
-                style={{
-                  background: "#1D3557",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 12,
-                  padding: "11px 28px",
-                  fontWeight: 700,
-                  fontSize: 14,
-                  cursor: "pointer",
-                  transition: "background 0.2s",
-                }}
+                className="bg-[#1D3557] text-white border-none rounded-xl py-2.25 px-5 sm:py-2.5 sm:px-6 md:py-2.75 md:px-7 font-bold text-[12px] sm:text-[13px] md:text-[14px] cursor-pointer transition-colors duration-200"
               >
                 {saved ? "✓ Saved!" : "Save Changes"}
               </button>
@@ -624,36 +500,13 @@ export default function Settings() {
               padding: 28,
             }}
           >
-            <h3
-              style={{
-                fontFamily: "Georgia, serif",
-                fontSize: 18,
-                color: "#1F2937",
-                marginTop: 0,
-                marginBottom: 20,
-              }}
-            >
+            <h3 className="text-[14px] sm:text-[15px] md:text-[16px] lg:text-[17px] xl:text-[18px] text-gray-800 mt-0 mb-5">
               Currency Converter
             </h3>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 16,
-                marginBottom: 16,
-              }}
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <label
-                  style={{
-                    fontSize: 12,
-                    color: "#6B7280",
-                    fontWeight: 600,
-                    display: "block",
-                    marginBottom: 8,
-                  }}
-                >
+                <label className="block text-[10px] sm:text-[11px] md:text-[12px] text-gray-500 font-semibold mb-2">
                   From
                 </label>
                 <CurrencyDropdown
@@ -665,16 +518,9 @@ export default function Settings() {
                   exclude={toCur}
                 />
               </div>
+
               <div>
-                <label
-                  style={{
-                    fontSize: 12,
-                    color: "#6B7280",
-                    fontWeight: 600,
-                    display: "block",
-                    marginBottom: 8,
-                  }}
-                >
+                <label className="block text-[10px] sm:text-[11px] md:text-[12px] text-gray-500 font-semibold mb-2">
                   To
                 </label>
                 <CurrencyDropdown
@@ -705,13 +551,7 @@ export default function Settings() {
                   type="number"
                   value={amount}
                   onChange={(e) => handleAmountChange(e.target.value)}
-                  style={{
-                    width: "100%",
-                    border: "1.5px solid #E5E7EB",
-                    borderRadius: 10,
-                    padding: "10px 50px 10px 14px",
-                    fontSize: 15,
-                  }}
+                  className="w-full border-[1.5px] border-gray-200 rounded-[10px] py-2 pr-10 pl-3 sm:py-2.25 sm:pr-11.25 sm:pl-3.25 md:py-2.5 md:pr-12.5 md:pl-3.5 text-[13px] sm:text-[14px] md:text-[15px]"
                   placeholder="0.00"
                 />
                 <span
@@ -746,15 +586,7 @@ export default function Settings() {
                 <input
                   readOnly
                   value={result}
-                  style={{
-                    width: "100%",
-                    border: "1.5px solid #E5E7EB",
-                    borderRadius: 10,
-                    padding: "10px 50px 10px 14px",
-                    fontSize: 15,
-                    background: "#F9FAFB",
-                    color: "#374151",
-                  }}
+                  className="w-full border-[1.5px] border-gray-200 rounded-[10px] py-2 pr-10 pl-3 sm:py-2.25 sm:pr-11.25 sm:pl-3.25 md:py-2.5 md:pr-12.5 md:pl-3.5 text-[13px] sm:text-[14px] md:text-[15px]"
                   placeholder="0.00"
                 />
                 <span

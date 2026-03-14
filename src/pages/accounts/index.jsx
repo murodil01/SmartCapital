@@ -167,7 +167,7 @@ const Accounts = () => {
     <div className="shadow-sm bg-white p-5 border border-[#E0E0E0] rounded-2xl flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-[20px] font-bold text-gray-900">Total Balance</h3>
+        <h3 className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] font-bold text-gray-900">Total Balance</h3>
         <button className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white text-[13px] font-medium px-4 py-2 rounded-xl transition-colors">
           <Plus size={15} /> Add Account
         </button>
@@ -200,7 +200,7 @@ const Accounts = () => {
                 </button>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-[34px] font-bold text-gray-900 tracking-tight">
+                <span className="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[31px] xl:text-[34px] font-bold text-gray-900 tracking-tight">
                   {fmt(total)}
                 </span>
                 <span className="text-gray-400 text-[13px]">UZS</span>

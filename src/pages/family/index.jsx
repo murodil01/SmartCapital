@@ -306,9 +306,14 @@ export default function Family() {
   });
 
   const [isMobile, setIsMobile] = useState(false);
+  const [isSmallMobile, setIsSmallMobile] = useState(false);
 
   useEffect(() => {
-    const checkRes = () => setIsMobile(window.innerWidth < 1024);
+    const checkRes = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 1024);
+      setIsSmallMobile(width < 480);
+    };
     checkRes();
     window.addEventListener("resize", checkRes);
     return () => window.removeEventListener("resize", checkRes);
@@ -408,23 +413,23 @@ export default function Family() {
   const s = {
     page: {
       minHeight: "100vh",
-      padding: isMobile ? 12 : 4,
+      padding: isSmallMobile ? 8 : isMobile ? 12 : 4,
       color: "#1e293b",
     },
     grid4: {
       display: "grid",
-      gridTemplateColumns: isMobile
-        ? window.innerWidth < 640
-          ? "1fr"
-          : "1fr 1fr"
-        : "repeat(4,1fr)",
-      gap: 16,
+      gridTemplateColumns: isSmallMobile
+        ? "1fr" // iPhone SE da 1 ustun
+        : isMobile
+          ? "1fr 1fr" // planshetda 2 ustun
+          : "repeat(4,1fr)", // desktopda 4 ustun
+      gap: isSmallMobile ? 12 : 16,
       marginBottom: 20,
     },
     statCard: (borderColor) => ({
       background: "#fff",
       borderRadius: 14,
-      padding: "18px 20px",
+      padding: isSmallMobile ? "14px 16px" : "18px 20px",
       borderLeft: `4px solid ${borderColor}`,
       boxShadow: "0 1px 4px rgba(0,0,0,.06)",
     }),
@@ -436,41 +441,41 @@ export default function Family() {
     card: {
       background: "#fff",
       borderRadius: 14,
-      padding: isMobile ? 16 : 24,
+      padding: isSmallMobile ? 12 : isMobile ? 16 : 24,
       boxShadow: "0 1px 4px rgba(0,0,0,.06)",
     },
     cardHeader: {
       display: "flex",
-      flexDirection: window.innerWidth < 480 ? "column" : "row",
-      alignItems: window.innerWidth < 480 ? "flex-start" : "center",
+      flexDirection: isSmallMobile ? "column" : "row",
+      alignItems: isSmallMobile ? "flex-start" : "center",
       justifyContent: "space-between",
-      marginBottom: 20,
+      marginBottom: isSmallMobile ? 16 : 20,
       gap: 12,
     },
-    cardTitle: { fontSize: 16, fontWeight: 700 },
+    cardTitle: { fontSize: isSmallMobile ? 15 : 16, fontWeight: 700 },
     th: {
-      padding: "12px",
-      fontSize: 12,
+      padding: isSmallMobile ? "8px 6px" : "12px",
+      fontSize: isSmallMobile ? 11 : 12,
       fontWeight: 600,
       textAlign: "left",
       color: "#fff",
       whiteSpace: "nowrap",
     },
     td: {
-      padding: "12px",
-      fontSize: 13,
+      padding: isSmallMobile ? "10px 6px" : "12px",
+      fontSize: isSmallMobile ? 12 : 13,
       verticalAlign: "middle",
       whiteSpace: "nowrap",
     },
     avatar: (color) => ({
-      width: 34,
-      height: 34,
+      width: isSmallMobile ? 30 : 34,
+      height: isSmallMobile ? 30 : 34,
       borderRadius: "50%",
       background: color,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: 12,
+      fontSize: isSmallMobile ? 10 : 12,
       fontWeight: 700,
       color: "#fff",
       flexShrink: 0,
@@ -479,34 +484,135 @@ export default function Family() {
       background: "none",
       border: "1px solid #e2e8f0",
       borderRadius: 7,
-      width: 32,
-      height: 32,
+      width: isSmallMobile ? 28 : 32,
+      height: isSmallMobile ? 28 : 32,
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       transition: "all .15s",
+      fontSize: isSmallMobile ? 12 : 14,
     },
     pageBtn: (active) => ({
       border: `1px solid ${active ? "#1a2550" : "#e2e8f0"}`,
       background: active ? "#1a2550" : "#fff",
       color: active ? "#fff" : "#1e293b",
       borderRadius: 6,
-      minWidth: 28,
-      height: 28,
+      minWidth: isSmallMobile ? 24 : 28,
+      height: isSmallMobile ? 24 : 28,
       cursor: "pointer",
-      fontSize: 12,
+      fontSize: isSmallMobile ? 11 : 12,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      padding: "0 8px",
+      padding: "0 6px",
     }),
+  };
+
+  // Pagination uchun mobil versiya
+  const renderPagination = () => {
+    if (isSmallMobile) {
+      // iPhone SE uchun soddalashtirilgan pagination
+      return (
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            style={{
+              border: "1px solid #e2e8f0",
+              background: "#fff",
+              borderRadius: 6,
+              padding: "0 8px",
+              height: 28,
+              cursor: "pointer",
+              fontSize: 12,
+            }}
+            disabled={page === 1}
+          >
+            ‹
+          </button>
+          <span style={{ fontSize: 12 }}>
+            {page}/{totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            style={{
+              border: "1px solid #e2e8f0",
+              background: "#fff",
+              borderRadius: 6,
+              padding: "0 8px",
+              height: 28,
+              cursor: "pointer",
+              fontSize: 12,
+            }}
+            disabled={page === totalPages}
+          >
+            ›
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <button
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          style={{
+            border: "1px solid #e2e8f0",
+            background: "#fff",
+            borderRadius: 6,
+            padding: "0 10px",
+            height: 28,
+            cursor: "pointer",
+          }}
+        >
+          ‹ Prev
+        </button>
+        {Array.from(
+          { length: Math.min(totalPages, 4) },
+          (_, i) => i + 1,
+        ).map((n) => (
+          <button
+            key={n}
+            onClick={() => setPage(n)}
+            style={s.pageBtn(page === n)}
+          >
+            {n}
+          </button>
+        ))}
+        <button
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          style={{
+            border: "1px solid #e2e8f0",
+            background: "#fff",
+            borderRadius: 6,
+            padding: "0 10px",
+            height: 28,
+            cursor: "pointer",
+          }}
+        >
+          Next ›
+        </button>
+      </>
+    );
   };
 
   return (
     <>
+      {/* Viewport meta uchun - HTML head qismiga qo'shilishi kerak */}
+      <style>{`
+        @media (max-width: 375px) {
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+          .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        }
+      `}</style>
+
       <div style={s.page}>
-        {/* ── STATS (Hammasi saqlangan) ── */}
+        {/* ── STATS ── */}
         <div style={s.grid4}>
           {[
             {
@@ -544,24 +650,24 @@ export default function Family() {
             },
           ].map((st, i) => (
             <div key={i} style={s.statCard(st.border)}>
-              <div style={{ fontSize: 13, color: "#64748b", marginBottom: 6 }}>
+              <div style={{ fontSize: isSmallMobile ? 12 : 13, color: "#64748b", marginBottom: 6 }}>
                 {st.label}
               </div>
               <div
                 style={{
-                  fontSize: 22,
+                  fontSize: isSmallMobile ? 18 : 22,
                   fontWeight: 700,
                   color: st.valueColor || "#1e293b",
                 }}
               >
                 {st.value}{" "}
                 <span
-                  style={{ fontSize: 12, fontWeight: 500, color: "#64748b" }}
+                  style={{ fontSize: isSmallMobile ? 10 : 12, fontWeight: 500, color: "#64748b" }}
                 >
                   {st.unit}
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+              <div style={{ fontSize: isSmallMobile ? 11 : 12, color: "#64748b", marginTop: 4 }}>
                 <span
                   style={{
                     color:
@@ -598,14 +704,14 @@ export default function Family() {
                     color: "#fff",
                     border: "none",
                     borderRadius: 8,
-                    padding: "9px 16px",
-                    fontSize: 13,
+                    padding: isSmallMobile ? "8px 14px" : "9px 16px",
+                    fontSize: isSmallMobile ? 12 : 13,
                     fontWeight: 600,
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
-                    width: window.innerWidth < 480 ? "100%" : "auto",
+                    width: isSmallMobile ? "100%" : "auto",
                     justifyContent: "center",
                   }}
                 >
@@ -613,14 +719,9 @@ export default function Family() {
                 </button>
               </div>
 
-              <div
-                style={{
-                  overflowX: "auto",
-                  margin: "0 -16px",
-                  padding: "0 16px",
-                }}
-              >
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              {/* Jadval gorizontal scroll bilan */}
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="no-scrollbar">
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: isSmallMobile ? 500 : "100%" }}>
                   <thead>
                     <tr style={{ background: "#1a2550" }}>
                       {["Member", "Role", "Joined", "Balance", "Action"].map(
@@ -643,6 +744,7 @@ export default function Family() {
                       )}
                     </tr>
                   </thead>
+
                   <tbody>
                     {pageMembers.map((m, i) => {
                       const absIdx = (page - 1) * PER_PAGE + i;
@@ -657,7 +759,7 @@ export default function Family() {
                               style={{
                                 display: "flex",
                                 alignItems: "center",
-                                gap: 10,
+                                gap: isSmallMobile ? 6 : 10,
                               }}
                             >
                               <div
@@ -665,7 +767,11 @@ export default function Family() {
                               >
                                 {initials(m.name)}
                               </div>
-                              {m.name}
+                              <span style={{ fontSize: isSmallMobile ? 12 : 13 }}>
+                                {m.name.length > (isSmallMobile ? 10 : 20) 
+                                  ? m.name.substring(0, isSmallMobile ? 8 : 18) + "..." 
+                                  : m.name}
+                              </span>
                             </div>
                           </td>
                           <td style={s.td}>
@@ -674,8 +780,8 @@ export default function Family() {
                                 background: badge.bg,
                                 color: badge.color,
                                 borderRadius: 20,
-                                padding: "3px 10px",
-                                fontSize: 11,
+                                padding: isSmallMobile ? "2px 8px" : "3px 10px",
+                                fontSize: isSmallMobile ? 10 : 11,
                                 fontWeight: 600,
                               }}
                             >
@@ -685,7 +791,7 @@ export default function Family() {
                           <td style={s.td}>{m.joined}</td>
                           <td style={s.td}>{fmt(m.balance)} UZS</td>
                           <td style={s.td}>
-                            <div style={{ display: "flex", gap: 8 }}>
+                            <div style={{ display: "flex", gap: isSmallMobile ? 4 : 8 }}>
                               <button
                                 onClick={() => handleEdit(absIdx)}
                                 style={s.iconBtn}
@@ -707,11 +813,11 @@ export default function Family() {
                 </table>
               </div>
 
-              {/* Pagination (To'liq saqlangan) */}
+              {/* Pagination */}
               <div
                 style={{
                   display: "flex",
-                  flexDirection: window.innerWidth < 640 ? "column" : "row",
+                  flexDirection: isSmallMobile ? "column" : "row",
                   alignItems: "center",
                   justifyContent: "space-between",
                   marginTop: 20,
@@ -726,60 +832,26 @@ export default function Family() {
                   {members.length} records
                 </span>
                 <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                  <button
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    style={{
-                      border: "1px solid #e2e8f0",
-                      background: "#fff",
-                      borderRadius: 6,
-                      padding: "0 10px",
-                      height: 28,
-                      cursor: "pointer",
-                    }}
-                  >
-                    ‹ Prev
-                  </button>
-                  {Array.from(
-                    { length: Math.min(totalPages, 4) },
-                    (_, i) => i + 1,
-                  ).map((n) => (
-                    <button
-                      key={n}
-                      onClick={() => setPage(n)}
-                      style={s.pageBtn(page === n)}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    style={{
-                      border: "1px solid #e2e8f0",
-                      background: "#fff",
-                      borderRadius: 6,
-                      padding: "0 10px",
-                      height: 28,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Next ›
-                  </button>
+                  {renderPagination()}
                 </div>
-                <span>
-                  Page {page} of {totalPages}
-                </span>
+                {!isSmallMobile && (
+                  <span>
+                    Page {page} of {totalPages}
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* Chart (Dizayn saqlangan) */}
+            {/* Chart */}
             <div style={{ ...s.card, marginTop: 20 }}>
               <div style={s.cardHeader}>
-                <span
-                  style={{ ...s.cardTitle, fontFamily: "'Syne', sans-serif" }}
-                >
-                  Overview
-                </span>
-                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <span style={{ ...s.cardTitle }}>Overview</span>
+                <div style={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: isSmallMobile ? 8 : 16,
+                  flexWrap: isSmallMobile ? "wrap" : "nowrap"
+                }}>
                   {!isMobile && (
                     <div
                       style={{
@@ -816,8 +888,8 @@ export default function Family() {
                     style={{
                       border: "1px solid #e2e8f0",
                       borderRadius: 7,
-                      padding: "6px 12px",
-                      fontSize: 12,
+                      padding: isSmallMobile ? "4px 8px" : "6px 12px",
+                      fontSize: isSmallMobile ? 11 : 12,
                       background: "#fff",
                     }}
                   >
@@ -827,17 +899,17 @@ export default function Family() {
                   </select>
                 </div>
               </div>
-              <div style={{ overflowX: "auto", paddingBottom: 10 }}>
-                <div style={{ display: "flex", minWidth: 400 }}>
+              <div style={{ overflowX: "auto", paddingBottom: 10, WebkitOverflowScrolling: "touch" }}>
+                <div style={{ display: "flex", minWidth: isSmallMobile ? 350 : 400 }}>
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
-                      fontSize: 10,
+                      fontSize: 9,
                       color: "#94a3b8",
                       height: 100,
-                      marginRight: 12,
+                      marginRight: 8,
                       textAlign: "right",
                     }}
                   >
@@ -850,7 +922,7 @@ export default function Family() {
                       flex: 1,
                       display: "flex",
                       alignItems: "flex-end",
-                      gap: 8,
+                      gap: 6,
                       height: 100,
                     }}
                   >
@@ -862,19 +934,19 @@ export default function Family() {
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
-                          gap: 6,
+                          gap: 4,
                         }}
                       >
                         <div
                           style={{
                             display: "flex",
-                            gap: 3,
+                            gap: 2,
                             alignItems: "flex-end",
                           }}
                         >
                           <div
                             style={{
-                              width: 10,
+                              width: isSmallMobile ? 6 : 10,
                               height: (cd.income[i] / maxBar) * 100,
                               background: "#16a34a",
                               borderRadius: "3px 3px 0 0",
@@ -882,7 +954,7 @@ export default function Family() {
                           ></div>
                           <div
                             style={{
-                              width: 10,
+                              width: isSmallMobile ? 6 : 10,
                               height: (cd.expense[i] / maxBar) * 100,
                               background: "#dc2626",
                               borderRadius: "3px 3px 0 0",
@@ -890,14 +962,14 @@ export default function Family() {
                           ></div>
                           <div
                             style={{
-                              width: 10,
+                              width: isSmallMobile ? 6 : 10,
                               height: (cd.savings[i] / maxBar) * 100,
                               background: "#2563eb",
                               borderRadius: "3px 3px 0 0",
                             }}
                           ></div>
                         </div>
-                        <span style={{ fontSize: 10, color: "#94a3b8" }}>
+                        <span style={{ fontSize: isSmallMobile ? 8 : 10, color: "#94a3b8" }}>
                           {label}
                         </span>
                       </div>
@@ -908,14 +980,11 @@ export default function Family() {
             </div>
           </div>
 
-          {/* RIGHT PANEL (To'liq saqlangan) */}
+          {/* RIGHT PANEL */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div style={s.card}>
               <div style={s.cardHeader}>
-                <span
-                >
-                  Shared Goals
-                </span>
+                <span style={{ fontSize: isSmallMobile ? 15 : 16 }}>Shared Goals</span>
                 <button
                   onClick={() => setGoalModal(true)}
                   style={{
@@ -923,8 +992,8 @@ export default function Family() {
                     color: "#2563eb",
                     border: "1px solid #bfdbfe",
                     borderRadius: 8,
-                    padding: "6px 12px",
-                    fontSize: 12,
+                    padding: isSmallMobile ? "4px 10px" : "6px 12px",
+                    fontSize: isSmallMobile ? 11 : 12,
                     fontWeight: 600,
                   }}
                 >
@@ -941,22 +1010,22 @@ export default function Family() {
                     key={i}
                     style={{
                       display: "flex",
-                      gap: 12,
-                      padding: "12px 0",
+                      gap: 10,
+                      padding: isSmallMobile ? "10px 0" : "12px 0",
                       borderBottom:
                         i < goals.length - 1 ? "1px solid #e2e8f0" : "none",
                     }}
                   >
                     <div
                       style={{
-                        width: 40,
-                        height: 40,
+                        width: isSmallMobile ? 32 : 40,
+                        height: isSmallMobile ? 32 : 40,
                         borderRadius: 10,
                         background: "#f1f5f9",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 18,
+                        fontSize: isSmallMobile ? 16 : 18,
                         flexShrink: 0,
                       }}
                     >
@@ -970,12 +1039,12 @@ export default function Family() {
                           marginBottom: 4,
                         }}
                       >
-                        <span style={{ fontSize: 13, fontWeight: 600 }}>
+                        <span style={{ fontSize: isSmallMobile ? 12 : 13, fontWeight: 600 }}>
                           {g.name}
                         </span>
                         <span
                           style={{
-                            fontSize: 12,
+                            fontSize: isSmallMobile ? 11 : 12,
                             fontWeight: 700,
                             color: g.color,
                           }}
@@ -985,7 +1054,7 @@ export default function Family() {
                       </div>
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: isSmallMobile ? 10 : 11,
                           color: "#64748b",
                           marginBottom: 6,
                         }}
@@ -994,7 +1063,7 @@ export default function Family() {
                       </div>
                       <div
                         style={{
-                          height: 6,
+                          height: isSmallMobile ? 4 : 6,
                           background: "#e2e8f0",
                           borderRadius: 99,
                           overflow: "hidden",
@@ -1030,21 +1099,21 @@ export default function Family() {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 12,
-                    padding: "12px 0",
+                    gap: 10,
+                    padding: isSmallMobile ? "10px 0" : "12px 0",
                     borderBottom:
                       i < activity.length - 1 ? "1px solid #e2e8f0" : "none",
                   }}
                 >
                   <div
-                    style={{ ...s.avatar("#1a2550"), width: 36, height: 36 }}
+                    style={{ ...s.avatar("#1a2550"), width: isSmallMobile ? 32 : 36, height: isSmallMobile ? 32 : 36 }}
                   >
                     {initials(a.name)}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div
                       style={{
-                        fontSize: 13,
+                        fontSize: isSmallMobile ? 12 : 13,
                         fontWeight: 600,
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -1053,13 +1122,13 @@ export default function Family() {
                     >
                       {a.name}
                     </div>
-                    <div style={{ fontSize: 11, color: "#64748b" }}>
+                    <div style={{ fontSize: isSmallMobile ? 10 : 11, color: "#64748b" }}>
                       {a.time}
                     </div>
                   </div>
                   <div
                     style={{
-                      fontSize: 13,
+                      fontSize: isSmallMobile ? 11 : 13,
                       fontWeight: 700,
                       color: a.positive ? "#16a34a" : "#dc2626",
                       whiteSpace: "nowrap",
@@ -1074,7 +1143,7 @@ export default function Family() {
           </div>
         </div>
 
-        {/* MODALLAR (O'zgarishsiz, faqat responsivlik qo'shildi) */}
+        {/* MODALS */}
         <Modal
           show={inviteModal}
           onClose={() => setInviteModal(false)}
@@ -1132,7 +1201,6 @@ export default function Family() {
           </div>
         </Modal>
 
-        {/* Edit va Goal modallari ham xuddi shunday saqlangan... */}
         <Modal
           show={editModal}
           onClose={() => setEditModal(false)}

@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const CATEGORIES = {
   Salary: { icon: "💼", color: "#6366F1", bg: "#EEF2FF", type: "income" },
@@ -113,14 +113,16 @@ function AddTransactionModal({ date, onClose, onAdd }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        padding: "0 16px",
       }}
     >
       <div
         style={{
           background: "#fff",
           borderRadius: 20,
-          padding: 28,
-          width: 340,
+          padding: 24,
+          width: "100%",
+          maxWidth: 340,
           boxShadow: "0 20px 60px rgba(0,0,0,0.18)",
         }}
       >
@@ -272,13 +274,27 @@ function AddTransactionModal({ date, onClose, onAdd }) {
 }
 
 export default function Calendar() {
-  // const today = new Date();
   const [year, setYear] = useState(2025);
   const [month, setMonth] = useState(0);
   const [selectedDay, setSelectedDay] = useState(12);
   const [transactions, setTransactions] = useState(INITIAL_TRANSACTIONS);
   const [addModal, setAddModal] = useState(null);
   const [rangeFilter, setRangeFilter] = useState(false);
+
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+  const [isSmallMobile, setIsSmallMobile] = useState(false);
+
+  useEffect(() => {
+    const checkRes = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsSmallMobile(width < 480);
+    };
+    checkRes();
+    window.addEventListener("resize", checkRes);
+    return () => window.removeEventListener("resize", checkRes);
+  }, []);
 
   const daysInMonth = getDaysInMonth(year, month);
   const firstDow = getFirstDayOfWeek(year, month);
@@ -329,93 +345,151 @@ export default function Calendar() {
     <div>
       <style>{`
         * { box-sizing:border-box; }
-        .cal-cell { cursor:pointer; transition:background 0.15s; min-height:90px; }
+        .cal-cell { 
+          cursor:pointer; 
+          transition:background 0.15s; 
+          min-height: 90px;
+          height: 100%;
+        }
+        @media (max-width: 768px) {
+          .cal-cell { 
+            min-height: 70px !important;
+            padding: 4px !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .cal-cell { 
+            min-height: 50px !important;
+            padding: 3px !important;
+          }
+          .tx-pill { 
+            display: none !important; 
+          }
+          .more-indicator { 
+            font-size: 9px !important;
+            margin-top: 0 !important;
+          }
+          .day-num-sel { 
+            font-size: 12px !important; 
+          }
+        }
         .cal-cell:hover { background:#F0F4FF !important; }
-        .tx-pill { font-size:11px; font-weight:700; border-radius:6px; padding:2px 5px; margin-top:2px; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+        .tx-pill { 
+          font-size: 11px; 
+          font-weight: 700; 
+          border-radius: 6px; 
+          padding: 2px 5px; 
+          margin-top: 2px; 
+          cursor: pointer; 
+          white-space: nowrap; 
+          overflow: hidden; 
+          text-overflow: ellipsis; 
+          max-width: 100%; 
+        }
         .tx-pill:hover { opacity:0.8; }
-        @media (max-width: 700px) {
+        @media (max-width: 480px) {
           .main-grid { grid-template-columns: 1fr !important; }
-          .cal-cell { min-height: 60px !important; }
-          .tx-pill { display: none; }
-          .day-num-sel { font-size:13px !important; }
+          .nav-title { font-size: 18px !important; }
+          .range-filter span { display: none; }
+          .range-filter { padding: 7px 10px !important; }
         }
       `}</style>
 
       <div className="shadow-sm bg-white p-5 border border-[#E0E0E0] rounded-2xl">
         <div className="flex flex-col gap-5">
           {/* Nav */}
-          <div className="flex justify-between items-center mb-4 gap-3">
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="flex flex-wrap justify-between items-center mb-4 gap-3">
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: isSmallMobile ? 6 : 10,
+                flexWrap: "wrap",
+              }}
+            >
               <h3
                 style={{
                   fontFamily: "Georgia,serif",
-                  fontSize: 22,
+                  fontSize: isSmallMobile ? 18 : isMobile ? 20 : 22,
                   margin: 0,
                   color: "#1F2937",
                 }}
               >
-                {MONTHS[month]} {year}
+                {isSmallMobile ? MONTHS[month].slice(0, 3) : MONTHS[month]}{" "}
+                {year}
               </h3>
 
-              <button
-                onClick={prevMonth}
-                style={{
-                  border: "1.5px solid #E5E7EB",
-                  background: "#fff",
-                  borderRadius: 8,
-                  width: 32,
-                  height: 32,
-                  cursor: "pointer",
-                  fontSize: 16,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <ArrowLeft size={15} />
-              </button>
+              <div style={{ display: "flex", gap: 5 }}>
+                <button
+                  onClick={prevMonth}
+                  style={{
+                    border: "1.5px solid #E5E7EB",
+                    background: "#fff",
+                    borderRadius: 8,
+                    width: isSmallMobile ? 28 : 32,
+                    height: isSmallMobile ? 28 : 32,
+                    cursor: "pointer",
+                    fontSize: 16,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ArrowLeft size={isSmallMobile ? 13 : 15} />
+                </button>
 
-              <button
-                onClick={nextMonth}
-                style={{
-                  border: "1.5px solid #E5E7EB",
-                  background: "#fff",
-                  borderRadius: 8,
-                  width: 32,
-                  height: 32,
-                  cursor: "pointer",
-                  fontSize: 16,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <ArrowRight size={15} />
-              </button>
+                <button
+                  onClick={nextMonth}
+                  style={{
+                    border: "1.5px solid #E5E7EB",
+                    background: "#fff",
+                    borderRadius: 8,
+                    width: isSmallMobile ? 28 : 32,
+                    height: isSmallMobile ? 28 : 32,
+                    cursor: "pointer",
+                    fontSize: 16,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ArrowRight size={isSmallMobile ? 13 : 15} />
+                </button>
+              </div>
             </div>
+
             <button
               onClick={() => setRangeFilter((v) => !v)}
+              className="range-filter"
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 6,
+                gap: isSmallMobile ? 4 : 6,
                 border: "1.5px solid #E5E7EB",
                 background: "#fff",
                 borderRadius: 10,
-                padding: "7px 14px",
+                padding: isSmallMobile ? "7px 10px" : "7px 14px",
                 cursor: "pointer",
-                fontSize: 13,
+                fontSize: isSmallMobile ? 12 : 13,
                 fontWeight: 600,
                 color: "#374151",
               }}
             >
-              📅 {rangeFilter ? "All Dates" : "10 May – 20 May"} ▾
+              📅
+              <span>
+                {rangeFilter
+                  ? "All Dates"
+                  : isSmallMobile
+                    ? "10–20 May"
+                    : "10 May – 20 May"}
+              </span>
+              ▾
             </button>
           </div>
 
           <div className="flex flex-col lg:flex-row lg:items-start items-center justify-center gap-5">
             {/* Calendar */}
-            <div className="flex-1 min-w-70">
+            <div className="flex-1 w-full min-w-0">
               {/* Day headers */}
               <div
                 style={{
@@ -429,14 +503,14 @@ export default function Calendar() {
                     key={d}
                     style={{
                       textAlign: "center",
-                      fontSize: 11,
+                      fontSize: isSmallMobile ? 9 : isMobile ? 10 : 11,
                       fontWeight: 700,
                       color: "#9CA3AF",
-                      padding: "4px 0",
+                      padding: isSmallMobile ? "2px 0" : "4px 0",
                       letterSpacing: 0.5,
                     }}
                   >
-                    {d}
+                    {isSmallMobile ? d.slice(0, 1) : d}
                   </div>
                 ))}
               </div>
@@ -462,7 +536,11 @@ export default function Calendar() {
                           if (cell.cur) setSelectedDay(cell.day);
                         }}
                         style={{
-                          padding: "6px 6px 8px",
+                          padding: isSmallMobile
+                            ? "3px"
+                            : isMobile
+                              ? "4px 4px 6px"
+                              : "6px 6px 8px",
                           background: isSel ? "#EEF2FF" : "#fff",
                           borderLeft: ci > 0 ? "1px solid #F3F4F6" : "none",
                           position: "relative",
@@ -471,49 +549,60 @@ export default function Calendar() {
                         <div
                           className="day-num-sel"
                           style={{
-                            fontSize: 13,
+                            fontSize: isSmallMobile ? 12 : isMobile ? 13 : 13,
                             fontWeight: isSel ? 700 : 500,
                             color: !cell.cur
                               ? "#D1D5DB"
                               : isSel
                                 ? "#6366F1"
                                 : "#374151",
-                            marginBottom: 2,
+                            marginBottom: isSmallMobile ? 0 : 2,
                           }}
                         >
                           {cell.day}
                         </div>
-                        {txs.slice(0, 2).map((tx) => {
-                          const c = CATEGORIES[tx.cat] || CATEGORIES.Transfer;
-                          return (
-                            <div
-                              key={tx.id}
-                              className="tx-pill"
-                              style={{ background: c.bg, color: c.color }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedDay(cell.day);
-                              }}
-                            >
-                              {tx.cat}
-                              <br />
-                              <span>
-                                {tx.amt > 0 ? "+" : ""}
-                                {fmt(tx.amt)}
-                              </span>
-                            </div>
-                          );
-                        })}
-                        {txs.length > 2 && (
+
+                        {/* Transaction pills - mobile da yashirin */}
+                        {!isSmallMobile &&
+                          txs.slice(0, isMobile ? 1 : 2).map((tx) => {
+                            const c = CATEGORIES[tx.cat] || CATEGORIES.Transfer;
+                            return (
+                              <div
+                                key={tx.id}
+                                className="tx-pill"
+                                style={{
+                                  background: c.bg,
+                                  color: c.color,
+                                  fontSize: isMobile ? 9 : 11,
+                                  padding: isMobile ? "1px 3px" : "2px 5px",
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedDay(cell.day);
+                                }}
+                              >
+                                {isMobile ? "" : tx.cat}
+                                <span>
+                                  {tx.amt > 0 ? "+" : ""}
+                                  {isMobile
+                                    ? fmt(tx.amt).slice(0, 3) + "k"
+                                    : fmt(tx.amt)}
+                                </span>
+                              </div>
+                            );
+                          })}
+
+                        {txs.length > (isMobile ? 1 : 2) && (
                           <div
+                            className="more-indicator"
                             style={{
-                              fontSize: 10,
+                              fontSize: isSmallMobile ? 9 : 10,
                               color: "#9CA3AF",
                               fontWeight: 600,
-                              marginTop: 2,
+                              marginTop: isSmallMobile ? 0 : 2,
                             }}
                           >
-                            +{txs.length - 2} more
+                            +{txs.length - (isMobile ? 1 : 2)}
                           </div>
                         )}
                       </div>
@@ -523,8 +612,8 @@ export default function Calendar() {
               ))}
             </div>
 
-            {/* Details Panel */}
-            <div className="w-70 shrink-0">
+            {/* Details Panel - mobil versiyada calendar ostiga tushadi */}
+            <div className="w-full lg:w-70 shrink-0">
               <div className="shadow-sm bg-white p-5 border border-[#E0E0E0] rounded-2xl">
                 <div
                   style={{
@@ -537,12 +626,14 @@ export default function Calendar() {
                   <h3
                     style={{
                       fontFamily: "Georgia,serif",
-                      fontSize: 16,
+                      fontSize: isSmallMobile ? 14 : 16,
                       margin: 0,
                       color: "#1F2937",
                     }}
                   >
-                    Daily Details: {MONTHS[month]} {selectedDay}
+                    {isSmallMobile
+                      ? `${selectedDay} ${MONTHS[month].slice(0, 3)}`
+                      : `Daily Details: ${MONTHS[month]} ${selectedDay}`}
                   </h3>
                 </div>
 
@@ -551,8 +642,8 @@ export default function Calendar() {
                     style={{
                       textAlign: "center",
                       color: "#9CA3AF",
-                      fontSize: 13,
-                      padding: "20px 0",
+                      fontSize: isSmallMobile ? 12 : 13,
+                      padding: isSmallMobile ? "15px 0" : "20px 0",
                     }}
                   >
                     No transactions
@@ -574,19 +665,19 @@ export default function Calendar() {
                           style={{
                             display: "flex",
                             alignItems: "center",
-                            gap: 10,
+                            gap: isSmallMobile ? 8 : 10,
                           }}
                         >
                           <div
                             style={{
-                              width: 36,
-                              height: 36,
+                              width: isSmallMobile ? 32 : 36,
+                              height: isSmallMobile ? 32 : 36,
                               borderRadius: 10,
                               background: c.bg,
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              fontSize: 18,
+                              fontSize: isSmallMobile ? 16 : 18,
                             }}
                           >
                             {c.icon}
@@ -594,11 +685,14 @@ export default function Calendar() {
                           <span
                             style={{
                               fontWeight: 600,
-                              fontSize: 14,
+                              fontSize: isSmallMobile ? 13 : 14,
                               color: "#374151",
                             }}
                           >
-                            {tx.cat}
+                            {isSmallMobile
+                              ? tx.cat.slice(0, 5) +
+                                (tx.cat.length > 5 ? "..." : "")
+                              : tx.cat}
                           </span>
                         </div>
                         <div
@@ -611,12 +705,15 @@ export default function Calendar() {
                           <span
                             style={{
                               fontWeight: 700,
-                              fontSize: 14,
+                              fontSize: isSmallMobile ? 12 : 14,
                               color: tx.amt > 0 ? "#10B981" : "#EF4444",
                             }}
                           >
                             {tx.amt > 0 ? "+" : ""}
-                            {fmt(tx.amt)} UZS
+                            {isSmallMobile
+                              ? fmt(tx.amt).slice(0, 4) + "k"
+                              : fmt(tx.amt)}{" "}
+                            UZS
                           </span>
                         </div>
                       </div>
@@ -633,7 +730,7 @@ export default function Calendar() {
                 >
                   <div
                     style={{
-                      fontSize: 13,
+                      fontSize: isSmallMobile ? 12 : 13,
                       fontWeight: 700,
                       color: "#1F2937",
                       marginBottom: 8,
@@ -645,7 +742,7 @@ export default function Calendar() {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      fontSize: 13,
+                      fontSize: isSmallMobile ? 12 : 13,
                       marginBottom: 4,
                     }}
                   >
@@ -658,7 +755,7 @@ export default function Calendar() {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      fontSize: 13,
+                      fontSize: isSmallMobile ? 12 : 13,
                     }}
                   >
                     <span style={{ color: "#6B7280" }}>Expense</span>

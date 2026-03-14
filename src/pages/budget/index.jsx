@@ -373,14 +373,15 @@ export default function Budget() {
               setEditItem(null);
               setShowModal(true);
             }}
-            className="w-full sm:w-auto bg-[#1D3557] text-white px-6 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+            className="w-full sm:w-auto bg-[#1D3557] text-white  px-4 py-2 sm:px-5 sm:py-3 md:px-6 md:py-3  rounded-xl font-medium text-[13px] sm:text-[14px] md:text-sm flex items-center justify-center gap-1 sm:gap-1.5 md:gap-2 hover:opacity-90 transition-opacity"
           >
-            <span className="text-lg">+</span> Create Budget
+            <span className="text-[16px] sm:text-[18px] md:text-lg">+</span>{" "}
+            Create Budget
           </button>
         </div>
 
         {/* Summary Cards - Grid for Responsiveness */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
           <WaveCard
             value={totalBudget}
             label="Total Budget"
