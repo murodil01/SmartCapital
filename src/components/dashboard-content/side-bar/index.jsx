@@ -45,7 +45,7 @@ const Sidebar = ({
   ];
 
   // Sidebar desktop/mobile styles
-  const baseClasses = `bg-[linear-gradient(180deg,#071A4B,#0A2560,#0B2E6D,#021033)] text-white shadow-lg h-full flex flex-col justify-between transition-all duration-300`;
+  const baseClasses = `bg-[linear-gradient(180deg,#071A4B,#0A2560,#0B2E6D,#021033)] text-white shadow-lg h-screen flex flex-col justify-between transition-all duration-300`;
 
   const desktopWidth = collapsed ? "w-20" : "w-64";
 
@@ -88,7 +88,7 @@ const Sidebar = ({
 
         {/* Main Sections */}
         <div
-          className={`flex flex-col flex-1 justify-start gap-2 mt-4 ${collapsed ? "px-3" : "px-6"}`}
+          className={`flex flex-col flex-1 overflow-y-auto justify-start gap-2 mt-4 ${collapsed ? "px-3" : "px-6"}`}
         >
           {mainSections.map((section) => (
             <div
