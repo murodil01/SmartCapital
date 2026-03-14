@@ -69,12 +69,12 @@ const Sidebar = ({
         ${desktopWidth} 
         fixed md:relative z-50 
         left-0 top-0 h-full 
-        transform md:translate-x-0 transition-width duration-300 ease-in-out
+        transform md:translate-x-0 transition-all duration-300 ease-in-out
         ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
         {/* Logo */}
         <div
-          className={`flex items-center py-4 border-b border-gray-700 transition-all duration-300 ${
+          className={`flex items-center py-4 border-b border-gray-700 transition-all duration-300 ease-in-out ${
             collapsed ? "justify-center px-3" : "justify-start px-6"
           }`}
         >
@@ -88,7 +88,7 @@ const Sidebar = ({
 
         {/* Main Sections */}
         <div
-          className={`flex flex-col flex-1 overflow-y-auto justify-start gap-2 mt-4 ${collapsed ? "px-3" : "px-6"}`}
+          className={`flex flex-col flex-1 overflow-y-auto no-scrollbar transition-all duration-300 ease-in-out justify-start gap-2 mt-4 ${collapsed ? "px-3" : "px-6"}`}
         >
           {mainSections.map((section) => (
             <div
@@ -101,7 +101,7 @@ const Sidebar = ({
                   setActiveSection(section.id);
                   setMobileOpen(false);
                 }}
-                className={`flex items-center ${collapsed ? "justify-center" : "gap-3"} p-3 font-medium rounded-lg w-full transition-all duration-200 ${
+                className={`flex items-center ${collapsed ? "justify-center" : "gap-3"} p-3 font-medium rounded-lg w-full transition-all duration-300 ease-in-out ${
                   activeSection === section.id
                     ? "bg-white text-blue-900 shadow-md"
                     : "hover:bg-white hover:text-blue-900"
@@ -112,7 +112,7 @@ const Sidebar = ({
               </button>
 
               {collapsed && (
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out whitespace-nowrap">
                   {section.label}
                 </div>
               )}

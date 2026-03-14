@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../../components/dashboard-content/side-bar";
 import Navbar from "../../components/dashboard-content/navbar";
@@ -14,6 +14,12 @@ const HomeLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // 🔹 Sahifa o‘zgarganda scrollni yuqoriga qaytarish
+  useEffect(() => {
+    const content = document.getElementById("content-area");
+    if (content) content.scrollTop = 0;
+  }, [location.pathname]);
+
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
@@ -28,7 +34,7 @@ const HomeLayout = () => {
       {/* Right side: Navbar + Content */}
       <div className="flex-1 flex flex-col">
         <Navbar
-          activeSection={activeSection}      // ✅ Shu yer qo‘shildi
+          activeSection={activeSection} 
           collapsed={collapsed}
           setCollapsed={setCollapsed}
           mobileOpen={mobileOpen}
@@ -36,7 +42,10 @@ const HomeLayout = () => {
         />
 
         {/* Content area */}
-        <div className="flex-1 bg-gray-100 p-4 overflow-auto no-scrollbar">
+        <div
+          id="content-area"
+          className="flex-1 bg-gray-100 p-4 overflow-auto no-scrollbar"
+        >
           <Outlet />
         </div>
       </div>

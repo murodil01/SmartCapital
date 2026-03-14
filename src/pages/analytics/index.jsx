@@ -613,39 +613,64 @@ const Analytics = () => {
           <div
             style={{
               display: "flex",
-              alignItems: "center",
-              gap: 12,
-              flexWrap: "wrap",
+              flexDirection: window.innerWidth <= 375 ? "column" : "row", // iPhone SE da ustun qilib yuboramiz
+              alignItems: window.innerWidth <= 375 ? "stretch" : "center",
+              gap: 16,
             }}
           >
-            <PieChart width={120} height={120}>
-              <Pie
-                data={expenseCategories}
-                cx={55}
-                cy={55}
-                innerRadius={32}
-                outerRadius={55}
-                dataKey="value"
-                stroke="none"
-              >
-                {expenseCategories.map((entry, i) => (
-                  <Cell key={i} fill={entry.color} />
-                ))}
-              </Pie>
-            </PieChart>
-            <div style={{ flex: 1, minWidth: 100 }}>
+            {/* Chart - iPhone SE da markazga */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                width: window.innerWidth <= 375 ? "100%" : "auto",
+              }}
+            >
+              <PieChart width={120} height={120}>
+                <Pie
+                  data={expenseCategories}
+                  cx={55}
+                  cy={55}
+                  innerRadius={32}
+                  outerRadius={55}
+                  dataKey="value"
+                  stroke="none"
+                >
+                  {expenseCategories.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </div>
+
+            {/* Categories list - iPhone SE da to'liq kenglik */}
+            <div
+              style={{
+                flex: 1,
+                minWidth: window.innerWidth <= 375 ? "100%" : 140, // iPhone SE da to'liq kenglik
+              }}
+            >
               {expenseCategories.map((cat, i) => (
                 <div
                   key={i}
                   style={{
                     display: "flex",
-                    alignItems: "center",
+                    alignItems: "flex-start", // "center" emas, yuqoridan boshlab joylashtiramiz
                     justifyContent: "space-between",
-                    marginBottom: 5,
+                    marginBottom: 10,
+                    width: "100%",
+                    gap: 8,
                   }}
                 >
+                  {/* Chap qism - nom va dot */}
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start", // dot va matn yuqoridan tekislanadi
+                      gap: 6,
+                      flex: 1,
+                      minWidth: 0, // bu MUHIM!
+                    }}
                   >
                     <span
                       style={{
@@ -655,14 +680,33 @@ const Analytics = () => {
                         background: cat.color,
                         flexShrink: 0,
                         display: "inline-block",
+                        marginTop: 3, // matn bilan tekis turishi uchun
                       }}
                     />
-                    <span style={{ fontSize: 11, color: "#374151" }}>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "#374151",
+                        whiteSpace: "normal", // matn sig'masa qator tashlaydi
+                        wordBreak: "break-word", // so'zlar uziladi
+                        lineHeight: "1.3",
+                      }}
+                    >
                       {cat.name}
                     </span>
                   </div>
+
+                  {/* O'ng qism - UZS */}
                   <span
-                    style={{ fontSize: 11, color: "#6B7280", fontWeight: 500 }}
+                    style={{
+                      fontSize: 11,
+                      color: "#6B7280",
+                      fontWeight: 500,
+                      whiteSpace: "nowrap", // UZS bir qatorda qoladi
+                      flexShrink: 0, // qisqarmaydi
+                      marginLeft: "auto", // o'ngga suriladi
+                      paddingLeft: 4,
+                    }}
                   >
                     {cat.value.toLocaleString()} UZS
                   </span>
