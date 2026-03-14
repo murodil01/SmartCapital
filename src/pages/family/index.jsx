@@ -421,7 +421,7 @@ export default function Family() {
       gridTemplateColumns: isSmallMobile
         ? "1fr" // iPhone SE da 1 ustun
         : isMobile
-          ? "1fr 1fr" // planshetda 2 ustun
+          ? "1fr" // planshetda 1 ustun
           : "repeat(4,1fr)", // desktopda 4 ustun
       gap: isSmallMobile ? 12 : 16,
       marginBottom: 20,
