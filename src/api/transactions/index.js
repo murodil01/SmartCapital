@@ -26,7 +26,7 @@ export const transactionsAPI = {
 
       if (!tokenData) throw { error: 'No token found' };
 
-      const response = await axiosInstance.get(`/transactions/${id}/`, {
+      const response = await axiosInstance.get(`/transactions/${id}`, {
         headers: {
           Authorization: `${tokenData.token.token_type} ${tokenData.token.access_token}`,
         },
@@ -62,7 +62,7 @@ export const transactionsAPI = {
 
       if (!tokenData) throw { error: 'No token found' };
 
-      const response = await axiosInstance.put(`/transactions/${id}/`, transactionData, {
+      const response = await axiosInstance.put(`/transactions/${id}`, transactionData, {
         headers: {
           Authorization: `${tokenData.token.token_type} ${tokenData.token.access_token}`,
         },
@@ -80,7 +80,7 @@ export const transactionsAPI = {
 
       if (!tokenData) throw { error: 'No token found' };
 
-      const response = await axiosInstance.delete(`/transactions/${id}/`, {
+      const response = await axiosInstance.delete(`/transactions/${id}`, {
         headers: {
           Authorization: `${tokenData.token.token_type} ${tokenData.token.access_token}`,
         },

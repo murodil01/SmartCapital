@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { settingsAPI } from "../../api/settings";
+import { message } from "antd";
 
 const CURRENCIES = [
   {
@@ -83,7 +85,7 @@ function CurrencyDropdown({ value, onChange, exclude }) {
         onClick={() => setOpen((o) => !o)}
         className="flex items-center justify-between gap-2 px-2.5 py-1.75 sm:px-.75 sm:py-2 md:px-3 md:py-2.25 border-[1.5px] border-gray-200 rounded-[10px] bg-white cursor-pointer min-w-25 sm:min-w-27.5 md:min-w-30 text-[13px] sm:text-[14px] md:text-[15px]"
       >
-        <img src={cur.flag} width={20} />
+        <img src={cur.flag} width={20} alt={cur.code} />
         <span style={{ fontWeight: 600 }}>{cur.code}</span>
         <span style={{ color: "#9CA3AF", fontSize: 12 }}>▾</span>
       </button>
@@ -124,7 +126,7 @@ function CurrencyDropdown({ value, onChange, exclude }) {
                 fontWeight: c.code === value ? 700 : 400,
               }}
             >
-              <img src={c.flag} width={20} /> <span>{c.code}</span>
+              <img src={c.flag} width={20} alt={c.code} /> <span>{c.code}</span>
               <span
                 style={{ color: "#9CA3AF", fontSize: 12, marginLeft: "auto" }}
               >
@@ -138,26 +140,42 @@ function CurrencyDropdown({ value, onChange, exclude }) {
   );
 }
 
-function ChangePasswordModal({ onClose }) {
-  const [form, setForm] = useState({ current: "", newPass: "", confirm: "" });
+function ChangePasswordModal({ onClose, onChangePassword }) {
+  const [form, setForm] = useState({
+    old_password: "",
+    new_password: "",
+    confirm: "",
+  });
   const [show, setShow] = useState({
-    current: false,
-    newPass: false,
+    old_password: false,
+    new_password: false,
     confirm: false,
   });
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handle = () => {
-    if (!form.current || !form.newPass || !form.confirm)
+  const handle = async () => {
+    if (!form.old_password || !form.new_password || !form.confirm)
       return setError("All fields are required.");
-    if (form.newPass.length < 6)
+    if (form.new_password.length < 6)
       return setError("New password must be at least 6 characters.");
-    if (form.newPass !== form.confirm)
+    if (form.new_password !== form.confirm)
       return setError("Passwords do not match.");
+
     setError("");
-    setSuccess(true);
-    setTimeout(onClose, 1200);
+    setLoading(true);
+
+    try {
+      await onChangePassword({
+        old_password: form.old_password,
+        new_password: form.new_password,
+      });
+      setTimeout(onClose, 1500);
+    } catch (err) {
+      setError(err.error || "Failed to change password");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const EyeIcon = ({ visible }) => (
@@ -187,13 +205,11 @@ function ChangePasswordModal({ onClose }) {
   return (
     <div className="fixed inset-0 bg-black/35 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-[20px] p-6 sm:p-8 md:p-10 w-full max-w-95 shadow-[0_20px_60px_rgba(0,0,0,0.18)]">
-        {/* Title */}
         <h3 className="text-[16px] sm:text-[18px] md:text-[20px] font-semibold mb-5 mt-0">
           Change Password
         </h3>
 
-        {/* Password Fields */}
-        {["current", "newPass", "confirm"].map((field, i) => (
+        {["old_password", "new_password", "confirm"].map((field, i) => (
           <div key={field} className="mb-3">
             <label className="block text-[10px] sm:text-[11px] md:text-[12px] font-semibold text-gray-500 uppercase tracking-[0.8px]">
               {["Current Password", "New Password", "Confirm New Password"][i]}
@@ -206,12 +222,14 @@ function ChangePasswordModal({ onClose }) {
                   setForm((f) => ({ ...f, [field]: e.target.value }))
                 }
                 placeholder="••••••••"
-                className="w-full border-[1.5px] border-gray-200 rounded-[10px]  py-2 px-3 pr-9 md:py-2.25 md:px-3 md:pr-10 text-[13px] sm:text-[14px] md:text-[15px] outline-none box-border"
+                className="w-full border-[1.5px] border-gray-200 rounded-[10px] py-2 px-3 pr-9 md:py-2.25 md:px-3 md:pr-10 text-[13px] sm:text-[14px] md:text-[15px] outline-none box-border"
+                disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShow((s) => ({ ...s, [field]: !s[field] }))}
                 className="absolute right-2 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer p-0"
+                disabled={loading}
               >
                 <EyeIcon visible={show[field]} />
               </button>
@@ -219,31 +237,37 @@ function ChangePasswordModal({ onClose }) {
           </div>
         ))}
 
-        {/* Error / Success Messages */}
         {error && (
           <p className="text-red-500 text-[12px] sm:text-[13px] mb-3">
             {error}
           </p>
         )}
-        {success && (
-          <p className="text-green-500 text-[12px] sm:text-[13px] mb-3">
-            Password changed successfully!
-          </p>
-        )}
+        {!error &&
+          form.old_password &&
+          form.new_password &&
+          form.confirm &&
+          form.new_password === form.confirm && (
+            <p className="text-green-500 text-[12px] sm:text-[13px] mb-3">
+              ✓ Passwords match
+            </p>
+          )}
 
-        {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-2 mt-5">
           <button
             onClick={onClose}
             className="flex-1 py-2.25 sm:py-2.5 rounded-[10px] border-[1.5px] border-gray-200 bg-white font-semibold cursor-pointer"
+            disabled={loading}
           >
             Cancel
           </button>
           <button
             onClick={handle}
-            className="flex-1 py-2.25 sm:py-2.5 rounded-[10px] border-none bg-[#1D3557] text-white font-bold cursor-pointer"
+            disabled={loading}
+            className={`flex-1 py-2.25 sm:py-2.5 rounded-[10px] border-none bg-[#1D3557] text-white font-bold cursor-pointer ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            Save
+            {loading ? "Changing..." : "Save"}
           </button>
         </div>
       </div>
@@ -252,7 +276,15 @@ function ChangePasswordModal({ onClose }) {
 }
 
 export default function Settings() {
-  const [profile, setProfile] = useState({ name: "", surname: "" });
+  const [profile, setProfile] = useState({
+    full_name: "",
+    email: "",
+    username: "",
+    phone: "",
+    avatar_url: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showPassModal, setShowPassModal] = useState(false);
   const [editAvatar, setEditAvatar] = useState(false);
@@ -265,14 +297,78 @@ export default function Settings() {
   const [rateLabel, setRateLabel] = useState("1 USD = 12 130,41 UZS");
   const [converting, setConverting] = useState(false);
 
+  // Fetch profile on mount
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    setLoading(true);
+    try {
+      const data = await settingsAPI.getProfile();
+      console.log("Profile data:", data);
+
+      // Full name dan name va surname ni ajratish
+      const nameParts = (data.full_name || "").split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
+
+      setProfile({
+        full_name: data.full_name || "",
+        name: firstName,
+        surname: lastName,
+        email: data.email || "",
+        username: data.username || "",
+        phone: data.phone || "",
+        avatar_url: data.avatar_url || "",
+      });
+    } catch (error) {
+      message.error("Failed to load profile");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const displayName = [
     profile.name || "Name",
     profile.surname || "Surname",
   ].join(" ");
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Full name ni birlashtirish
+      const fullName = `${profile.name || ""} ${profile.surname || ""}`.trim();
+
+      const profileData = {
+        full_name: fullName,
+        email: profile.email,
+        username: profile.username,
+        phone: profile.phone,
+        avatar_url: profile.avatar_url,
+      };
+
+      const updated = await settingsAPI.updateProfile(profileData);
+      console.log("Updated profile:", updated);
+
+      setSaved(true);
+      message.success("Profile updated successfully");
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      message.error(error.error || "Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    // try {
+    //   await settingsAPI.changePassword(passwordData);
+    //   message.success('Password changed successfully');
+    // } catch (error) {
+    //   throw error;
+    // }
   };
 
   const handleRefresh = () => {
@@ -298,6 +394,16 @@ export default function Settings() {
     "#E9D5FF",
     "#99F6E4",
   ];
+
+  if (loading) {
+    return (
+      <div className="shadow-sm bg-white p-5 border border-[#E0E0E0] rounded-2xl">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -337,23 +443,31 @@ export default function Settings() {
                 className="self-center sm:self-auto"
                 style={{ position: "relative" }}
               >
-                <div
-                  style={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: 14,
-                    background: avatarColor,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 22,
-                    fontWeight: 700,
-                    color: "#1D3557",
-                  }}
-                >
-                  {(profile.name?.[0] || "N").toUpperCase()}
-                  {(profile.surname?.[0] || "S").toUpperCase()}
-                </div>
+                {profile.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt="avatar"
+                    className="w-16 h-16 rounded-[14px] object-cover"
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 14,
+                      background: avatarColor,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 22,
+                      fontWeight: 700,
+                      color: "#1D3557",
+                    }}
+                  >
+                    {(profile.name?.[0] || "N").toUpperCase()}
+                    {(profile.surname?.[0] || "S").toUpperCase()}
+                  </div>
+                )}
                 <button
                   onClick={() => setEditAvatar((v) => !v)}
                   style={{
@@ -438,11 +552,16 @@ export default function Settings() {
                   {displayName}
                 </div>
                 <div style={{ fontSize: 13, color: "#6B7280", marginTop: 3 }}>
-                  <span style={{ fontWeight: 600 }}>Phone Number:</span> +998 94
-                  123 12 12
+                  <span style={{ fontWeight: 600 }}>Username:</span>{" "}
+                  {profile.username || "Not set"}
                 </div>
                 <div style={{ fontSize: 13, color: "#6B7280", marginTop: 2 }}>
-                  <span style={{ fontWeight: 600 }}>Password:</span> ••••••••
+                  <span style={{ fontWeight: 600 }}>Email:</span>{" "}
+                  {profile.email || "Not set"}
+                </div>
+                <div style={{ fontSize: 13, color: "#6B7280", marginTop: 2 }}>
+                  <span style={{ fontWeight: 600 }}>Phone:</span>{" "}
+                  {profile.phone || "+998 94 123 12 12"}
                 </div>
               </div>
             </div>
@@ -452,41 +571,83 @@ export default function Settings() {
               <label
                 style={{ fontSize: 13, color: "#374151", fontWeight: 500 }}
               >
-                Name <span style={{ color: "#9CA3AF" }}>(Optional)</span>
+                First Name <span style={{ color: "#9CA3AF" }}>(Optional)</span>
               </label>
               <input
-                value={profile.name}
+                value={profile.name || ""}
                 onChange={(e) =>
                   setProfile((p) => ({ ...p, name: e.target.value }))
                 }
-                placeholder="Enter your name"
+                placeholder="Enter your first name"
                 className="block w-full mt-1.5 border-[1.5px] border-gray-300 rounded-[10px] py-2 px-3 sm:py-2.25 sm:px-3.25 md:py-2.5 md:px-3.5 text-[12px] sm:text-[13px] md:text-[14px] text-gray-700"
+                disabled={saving}
               />
             </div>
 
             {/* Surname Field */}
+            <div style={{ marginBottom: 16 }}>
+              <label
+                style={{ fontSize: 13, color: "#374151", fontWeight: 500 }}
+              >
+                Last Name <span style={{ color: "#9CA3AF" }}>(Optional)</span>
+              </label>
+              <input
+                value={profile.surname || ""}
+                onChange={(e) =>
+                  setProfile((p) => ({ ...p, surname: e.target.value }))
+                }
+                placeholder="Enter your last name"
+                className="block w-full mt-1.5 border-[1.5px] border-gray-300 rounded-[10px] py-2 px-3 sm:py-2.25 sm:px-3.25 md:py-2.5 md:px-3.5 text-[12px] sm:text-[13px] md:text-[14px] text-gray-700"
+                disabled={saving}
+              />
+            </div>
+
+            {/* Email Field */}
+            <div style={{ marginBottom: 16 }}>
+              <label
+                style={{ fontSize: 13, color: "#374151", fontWeight: 500 }}
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                value={profile.email || ""}
+                onChange={(e) =>
+                  setProfile((p) => ({ ...p, email: e.target.value }))
+                }
+                placeholder="Enter your email"
+                className="block w-full mt-1.5 border-[1.5px] border-gray-300 rounded-[10px] py-2 px-3 sm:py-2.25 sm:px-3.25 md:py-2.5 md:px-3.5 text-[12px] sm:text-[13px] md:text-[14px] text-gray-700"
+                disabled={saving}
+              />
+            </div>
+
+            {/* Username Field */}
             <div style={{ marginBottom: 24 }}>
               <label
                 style={{ fontSize: 13, color: "#374151", fontWeight: 500 }}
               >
-                Surname <span style={{ color: "#9CA3AF" }}>(Optional)</span>
+                Username
               </label>
               <input
-                value={profile.surname}
+                value={profile.username || ""}
                 onChange={(e) =>
-                  setProfile((p) => ({ ...p, surname: e.target.value }))
+                  setProfile((p) => ({ ...p, username: e.target.value }))
                 }
-                placeholder="Enter your surname"
+                placeholder="Enter your username"
                 className="block w-full mt-1.5 border-[1.5px] border-gray-300 rounded-[10px] py-2 px-3 sm:py-2.25 sm:px-3.25 md:py-2.5 md:px-3.5 text-[12px] sm:text-[13px] md:text-[14px] text-gray-700"
+                disabled={saving}
               />
             </div>
 
             <div className="flex justify-end">
               <button
                 onClick={handleSave}
-                className="bg-[#1D3557] text-white border-none rounded-xl py-2.25 px-5 sm:py-2.5 sm:px-6 md:py-2.75 md:px-7 font-bold text-[12px] sm:text-[13px] md:text-[14px] cursor-pointer transition-colors duration-200"
+                disabled={saving}
+                className={`bg-[#1D3557] text-white border-none rounded-xl py-2.25 px-5 sm:py-2.5 sm:px-6 md:py-2.75 md:px-7 font-bold text-[12px] sm:text-[13px] md:text-[14px] cursor-pointer transition-colors duration-200 ${
+                  saving ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
-                {saved ? "✓ Saved!" : "Save Changes"}
+                {saving ? "Saving..." : saved ? "✓ Saved!" : "Save Changes"}
               </button>
             </div>
           </div>
@@ -637,7 +798,10 @@ export default function Settings() {
       </div>
 
       {showPassModal && (
-        <ChangePasswordModal onClose={() => setShowPassModal(false)} />
+        <ChangePasswordModal
+          onClose={() => setShowPassModal(false)}
+          onChangePassword={handleChangePassword}
+        />
       )}
     </div>
   );

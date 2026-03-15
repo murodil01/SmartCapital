@@ -61,9 +61,7 @@ export const accountsAPI = {
 
       if (!tokenData) throw { error: 'No token found' };
 
-      console.log('Updating account:', id, accountData); // Debug uchun
-
-      const response = await axiosInstance.patch(`/accounts/${id}/`, accountData, {
+      const response = await axiosInstance.patch(`/accounts/${id}`, accountData, {
         headers: {
           Authorization: `${tokenData.token.token_type} ${tokenData.token.access_token}`,
         },
@@ -71,7 +69,6 @@ export const accountsAPI = {
 
       return response.data;
     } catch (error) {
-      console.error('Update error:', error.response?.data);
       throw error.response?.data || { error: 'Failed to update account' };
     }
   },
@@ -82,9 +79,7 @@ export const accountsAPI = {
 
       if (!tokenData) throw { error: 'No token found' };
 
-      console.log('Deleting account:', id); // Debug uchun
-
-      const response = await axiosInstance.delete(`/accounts/${id}/`, {
+      const response = await axiosInstance.delete(`/accounts/${id}`, {
         headers: {
           Authorization: `${tokenData.token.token_type} ${tokenData.token.access_token}`,
         },
@@ -92,7 +87,6 @@ export const accountsAPI = {
 
       return response.data;
     } catch (error) {
-      console.error('Delete error:', error.response?.data);
       throw error.response?.data || { error: 'Failed to delete account' };
     }
   },
