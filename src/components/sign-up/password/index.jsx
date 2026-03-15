@@ -2,13 +2,12 @@ import { MoveLeft } from "lucide-react";
 import { Form, Input } from "antd";
 import { useNavigate } from "react-router-dom";
 
-const Password = ({ onSuccess, onBack }) => {
+const Password = ({ onSuccess, onBack, loading }) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
   const onFinish = (values) => {
-    console.log("Password saved:", values);
-    onSuccess(); // Welcome ga o'tadi
+    onSuccess(values);
   };
 
   return (
@@ -57,6 +56,10 @@ const Password = ({ onSuccess, onBack }) => {
           rules={[
             { required: true, message: "Please enter your password!" },
             { min: 8, message: "Password must be at least 8 characters!" },
+            {
+              pattern: /^(?=.*[A-Za-z])(?=.*\d)/,
+              message: "Password must include letters and numbers!",
+            }
           ]}
           required={false}
         >
@@ -110,9 +113,12 @@ const Password = ({ onSuccess, onBack }) => {
         <Form.Item>
           <button
             type="submit"
-            className="w-full mt-5 lg:mt-10 lg:w-75 cursor-pointer flex items-center justify-center gap-3 bg-linear-to-r from-[#4B5EFF] to-[#4F8AFF] text-white py-3.5 rounded-[27px] font-semibold text-[16px] sm:text-[18px] shadow-md hover:opacity-90 transition"
+            disabled={loading}
+            className={`w-full mt-5 lg:mt-10 lg:w-75 cursor-pointer flex items-center justify-center gap-3 ${
+              loading ? 'bg-gray-400' : 'bg-linear-to-r from-[#4B5EFF] to-[#4F8AFF]'
+            } text-white py-3.5 rounded-[27px] font-semibold text-[16px] sm:text-[18px] shadow-md hover:opacity-90 transition`}
           >
-            Save
+            {loading ? 'Saving...' : 'Save'}
           </button>
         </Form.Item>
       </Form>

@@ -1,13 +1,19 @@
 import { MoveLeft } from "lucide-react";
-import { Form, Input } from "antd";
+import { Form, Input, message } from "antd";
 
 const ForgotPassword = ({ onSuccess, onBack }) => {
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
-    console.log("Password saved:", values);
-    onSuccess(); // Welcome ga o'tadi
+    // Backendda new-password API yo'q, shuning uchun demo
+    console.log(values);
+
+    message.success("Reset link sent to your phone!");
+    setTimeout(() => {
+      onSuccess();
+    }, 1000);
   };
+
   return (
     <div className="flex flex-col">
       <h3 className="text-[clamp(24px,5vw,32px)] font-bold mb-2 text-[#3A3F63]">
@@ -56,7 +62,9 @@ const ForgotPassword = ({ onSuccess, onBack }) => {
         </Form.Item>
       </Form>
 
-      <p className="text-[#6A74A5] text-[16px] font-semibold my-4">Remember your password?</p>
+      <p className="text-[#6A74A5] text-[16px] font-semibold my-4">
+        Remember your password?
+      </p>
 
       {/* Back button */}
       <button

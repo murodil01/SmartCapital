@@ -1,12 +1,17 @@
 import { MoveLeft } from "lucide-react";
-import { Form, Input } from "antd";
+import { Form, Input, message } from "antd";
 
 const NewPassword = ({ onSuccess, onBack }) => {
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
-    console.log("Password saved:", values);
-    onSuccess(); // Welcome ga o'tadi
+    console.log(values); // values ishlatilmoqda
+
+    // Backendda new-password API yo'q, shuning uchun demo
+    message.success("Password updated successfully!");
+    setTimeout(() => {
+      onSuccess();
+    }, 1000);
   };
 
   return (

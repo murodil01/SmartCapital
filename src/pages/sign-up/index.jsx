@@ -1,14 +1,61 @@
-import { Form, Input } from "antd";
+import { Form, Input, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
 import sign_bg from "../../assets/images/sign_bg.png";
 import { MoveRight } from "lucide-react";
 import Password from "../../components/sign-up/password";
 import { useState } from "react";
+import { authAPI } from "../../api/auth";
 
 const SignUp = () => {
   const [step, setStep] = useState("phone");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handlePhoneSubmit = (values) => {
+    setPhoneNumber(values.phone);
+    setStep("password");
+  };
+
+  // const handleRegister = async (passwordData) => {
+  //   setLoading(true);
+  //   try {
+  //     const registerData = {
+  //       phone: phoneNumber,
+  //       password: passwordData.password,
+  //       confirm_password: passwordData.confirmPassword,
+  //     };
+
+  //     const response = await authAPI.register(registerData);
+  //     message.success("Registration successful! Please sign in.");
+  //     navigate("/"); // SignIn sahifasiga o'tadi
+  //   } catch (error) {
+  //     message.error(error.error || "Registration failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const handleRegister = async (passwordData) => {
+    setLoading(true);
+    try {
+      const registerData = {
+        phone: phoneNumber,
+        password: passwordData.password,
+        confirm_password: passwordData.confirmPassword,
+      };
+
+      await authAPI.register(registerData);
+
+      message.success("Registration successful! Please sign in.");
+      navigate("/");
+    } catch (error) {
+      message.error(error.error || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col lg:flex-row gap-0 h-screen">
@@ -19,10 +66,10 @@ const SignUp = () => {
       >
         <div className="flex items-center gap-3">
           <img src={logo} alt="Logo" className="w-10" />
-          <h1 className="text-[24px] font-medium text-white">SmartCapital</h1>
+          <h3 className="text-[24px] font-medium text-white">SmartCapital</h3>
         </div>
 
-        <p className="text-2xl sm:text-3xl uppercase font-semibold leading-relaxed max-w-full lg:max-w-65">
+        <p className="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] xl:text-[34px] uppercase font-semibold leading-relaxed max-w-full lg:max-w-80">
           Stay <span className="text-[#71A0FE]">organized</span> save{" "}
           <span className="text-[#71A0FE]">more</span> and achieve your
           financial <span className="text-[#71A0FE]">goals</span>
@@ -36,12 +83,15 @@ const SignUp = () => {
           <>
             {/* Top-right "Get started" */}
             <div className="relative lg:absolute lg:top-8 lg:right-8 flex justify-end lg:justify-start items-center gap-3 lg:gap-5 mb-4 lg:mb-0">
-              <button className="text-[#6A74A5] text-[14px] lg:text-[16px] font-normal">
+              <button
+                onClick={() => navigate("/")}
+                className="text-[#6A74A5] text-[14px] lg:text-[16px] font-normal"
+              >
                 Already have an account?
               </button>
               <button
                 onClick={() => navigate("/")}
-                className="text-[#4458FE] font-medium text-[14px] lg:text-[16px] border-2 border-[#4458FE] py-1.5 px-4 lg:py-2 lg:px-6 rounded-[27px] hover:bg-[#4458FE] hover:text-white transition"
+                className="text-[#4458FE] cursor-pointer font-medium text-[14px] lg:text-[16px] border-2 border-[#4458FE] py-1.5 px-4 lg:py-2 lg:px-6 rounded-[27px] hover:bg-[#4458FE] hover:text-white transition"
               >
                 Sign in
               </button>
@@ -56,7 +106,7 @@ const SignUp = () => {
                 Create your account and start your financial journey today
               </p>
 
-              <Form layout="vertical">
+              <Form layout="vertical" onFinish={handlePhoneSubmit}>
                 <Form.Item
                   label={
                     <span
@@ -75,6 +125,10 @@ const SignUp = () => {
                       required: true,
                       message: "Please enter your phone number!",
                     },
+                    {
+                      pattern: /^\+998\d{9}$/,
+                      message: "Please enter valid phone number!",
+                    },
                   ]}
                   required={false}
                 >
@@ -91,8 +145,8 @@ const SignUp = () => {
 
                 <Form.Item>
                   <button
-                    onClick={() => setStep("password")}
-                    className="w-full mt-5 lg:mt-10 lg:w-75 cursor-pointer flex items-center justify-center gap-3 bg-[#cccfdd] text-white py-3.5 rounded-[27px] font-semibold text-[16px] sm:text-[18px] shadow-md hover:opacity-90 transition"
+                    type="submit"
+                    className="w-full mt-5 lg:mt-10 lg:w-75 cursor-pointer flex items-center justify-center gap-3 bg-[#cccfdd] text-[#6A74A5] py-3.5 rounded-[27px] font-semibold text-[16px] sm:text-[18px] shadow-md hover:opacity-90 transition"
                   >
                     Sign up <MoveRight />
                   </button>
@@ -106,7 +160,8 @@ const SignUp = () => {
         {step === "password" && (
           <Password
             onBack={() => setStep("phone")}
-            onSuccess={() => navigate("/")} // endi SignIn sahifasiga o'tadi
+            onSuccess={handleRegister}
+            loading={loading}
           />
         )}
       </div>

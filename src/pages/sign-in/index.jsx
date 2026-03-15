@@ -1,4 +1,4 @@
-import { Form, Input, Checkbox } from "antd";
+import { Form, Input, Checkbox, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
 import sign_bg from "../../assets/images/sign_bg.png";
@@ -6,13 +6,30 @@ import { MoveRight } from "lucide-react";
 import { useState } from "react";
 import ForgotPassword from "../../components/sign-in/forgot-password";
 import NewPassword from "../../components/sign-in/new-password";
+import { authAPI } from "../../api/auth";
 
 const SignIn = () => {
   const [step, setStep] = useState("phone");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignIn = () => {
-    navigate("/home");
+  const handleSignIn = async (values) => {
+    setLoading(true);
+    try {
+      const loginData = {
+        phone: values.phone,
+        password: values.password,
+      };
+
+      await authAPI.login(loginData);
+
+      message.success("Login successful!");
+      navigate("/home");
+    } catch (error) {
+      message.error(error.error || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,7 +44,7 @@ const SignIn = () => {
           <h1 className="text-[24px] font-medium text-white">SmartCapital</h1>
         </div>
 
-        <p className="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] xl:text-[34px] uppercase font-semibold leading-relaxed max-w-full lg:max-w-65">
+        <p className="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] xl:text-[34px] uppercase font-semibold leading-relaxed max-w-full lg:max-w-80">
           Stay <span className="text-[#71A0FE]">organized</span> save{" "}
           <span className="text-[#71A0FE]">more</span> and achieve your
           financial <span className="text-[#71A0FE]">goals</span>
@@ -53,14 +70,14 @@ const SignIn = () => {
         <div className="w-full max-w-155 p-4 md:p-0">
           {step === "phone" && (
             <>
-              <h2 className="text-[clamp(24px,5vw,32px)] font-bold mb-2 text-[#3A3F63]">
+              <h3 className="text-[clamp(24px,5vw,32px)] font-bold mb-2 text-[#3A3F63]">
                 WELCOME TO SMARTCAPITAL
-              </h2>
+              </h3>
               <p className="text-[#6A74A5] font-normal text-[14px] sm:text-[16px] mb-6">
                 Smart way to manage your personal finances
               </p>
 
-              <Form layout="vertical">
+              <Form layout="vertical" onFinish={handleSignIn}>
                 <Form.Item
                   label={
                     <span
@@ -127,6 +144,7 @@ const SignIn = () => {
                     Remember me on this device
                   </Checkbox>
                   <button
+                    type="button"
                     onClick={() => setStep("forgotPassword")}
                     className="text-[#3A3F63] font-medium text-[14px] sm:text-[16px] cursor-pointer mt-2 sm:mt-0"
                   >
@@ -136,10 +154,13 @@ const SignIn = () => {
 
                 <Form.Item>
                   <button
-                    onClick={handleSignIn}
-                    className="w-full lg:w-75 cursor-pointer flex items-center justify-center gap-3 bg-[#cccfdd] text-white py-3.5 rounded-[27px] font-semibold text-[16px] sm:text-[18px] shadow-md hover:opacity-90 transition"
+                    type="submit"
+                    disabled={loading}
+                    className={`w-full lg:w-75 cursor-pointer flex items-center justify-center gap-3 ${
+                      loading ? "bg-gray-400" : "bg-[#cccfdd]"
+                    } text-[#6A74A5] py-3.5 rounded-[27px] font-semibold text-[16px] sm:text-[18px] shadow-md hover:opacity-90 transition`}
                   >
-                    Sign in <MoveRight />
+                    {loading ? "Signing in..." : "Sign in"} <MoveRight />
                   </button>
                 </Form.Item>
               </Form>
@@ -156,9 +177,9 @@ const SignIn = () => {
           {step === "newPassword" && (
             <NewPassword
               onBack={() => setStep("forgotPassword")}
-              onSuccess={() => setStep("phone")} // endi SignIn sahifasiga qaytadi
+              onSuccess={() => setStep("phone")}
             />
-          )}{" "}
+          )}
         </div>
       </div>
     </div>
