@@ -899,7 +899,7 @@ export default function Family() {
                   </select>
                 </div>
               </div>
-              <div style={{ overflowX: "auto", paddingBottom: 10, WebkitOverflowScrolling: "touch" }}>
+              <div className="no-scrollbar" style={{ overflowX: "auto", paddingBottom: 10, WebkitOverflowScrolling: "touch" }}>
                 <div style={{ display: "flex", minWidth: isSmallMobile ? 350 : 400 }}>
                   <div
                     style={{

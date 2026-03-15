@@ -16,17 +16,19 @@ import Analytics from "./pages/analytics";
 import Calendar from "./pages/calendar";
 import Family from "./pages/family";
 import Settings from "./pages/settings";
+import ScrollToTop from "./components//scroll-top/";
 
 function App() {
   return (
     <Router>
+      <ScrollToTop /> 
       <Routes>
         <Route path="/" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
 
         {/* Dashboard layout */}
         <Route path="/home" element={<HomeLayout />}>
-          <Route index element={<Dashboard />} /> 
+          <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="accounts" element={<Accounts />} />
           <Route path="transactions" element={<Transactions />} />

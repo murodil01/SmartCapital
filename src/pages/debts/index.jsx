@@ -1,5 +1,6 @@
 import { useState } from "react";
 import React from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const INITIAL_DEBTS = [
   {
@@ -460,7 +461,7 @@ function WaveCard({ title, amount, sub, positive }) {
   return (
     <div
       style={{
-        flex: "1 1 250px",
+        flex: "1 1 150px",
         minWidth: 200,
         background: bg,
         borderRadius: 16,
@@ -1286,6 +1287,7 @@ export default function Debts() {
                           {r.status}
                         </button>
 
+                        {/* Edit vs Delete */}
                         <div style={{ display: "flex", gap: "8px" }}>
                           <button
                             className="act-btn"
@@ -1348,17 +1350,10 @@ export default function Debts() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                style={{
-                  padding: "0 12px",
-                  height: 32,
-                  borderRadius: 8,
-                  border: "1.5px solid #E5E7EB",
-                  background: "#fff",
-                  color: "#374151",
-                  cursor: page === 1 ? "not-allowed" : "pointer",
-                }}
+                className={` flex items-center gap-1 px-3 h-8 rounded-lg border border-gray-200 bg-white text-gray-700 ${page === 1 ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
               >
-                ‹ Previous
+                <ArrowLeft size={15} />
+                <span className="hidden sm:inline">Previous</span>
               </button>
 
               {/* Page numbers */}
@@ -1390,17 +1385,10 @@ export default function Debts() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                style={{
-                  padding: "0 12px",
-                  height: 32,
-                  borderRadius: 8,
-                  border: "1.5px solid #E5E7EB",
-                  background: "#fff",
-                  color: "#374151",
-                  cursor: page === totalPages ? "not-allowed" : "pointer",
-                }}
+                className={`flex items-center gap-1 px-3 h-8 rounded-lg border border-gray-200 bg-white text-gray-700 ${page === totalPages ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
               >
-                Next ›
+                <span className="hidden sm:inline">Next</span>
+                <ArrowRight size={15} />
               </button>
             </div>
 

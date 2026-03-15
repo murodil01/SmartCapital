@@ -19,7 +19,7 @@ const SignIn = () => {
     <div className="flex flex-col lg:flex-row gap-0 h-screen">
       {/* LEFT SIDE */}
       <div
-        className="flex flex-col gap-6 lg:gap-12.5 w-full lg:w-120 text-white p-6 lg:p-10 bg-no-repeat bg-center bg-cover"
+        className="flex flex-col gap-6 lg:gap-12.5 p-7.5 w-full lg:w-120 text-white lg:p-10 bg-no-repeat bg-cover bg-position-[center_top] lg:bg-center"
         style={{ backgroundImage: `url(${sign_bg})` }}
       >
         <div className="flex items-center gap-3">
@@ -27,7 +27,7 @@ const SignIn = () => {
           <h1 className="text-[24px] font-medium text-white">SmartCapital</h1>
         </div>
 
-        <p className="text-2xl sm:text-3xl uppercase font-semibold leading-relaxed max-w-full lg:max-w-65">
+        <p className="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] xl:text-[34px] uppercase font-semibold leading-relaxed max-w-full lg:max-w-65">
           Stay <span className="text-[#71A0FE]">organized</span> save{" "}
           <span className="text-[#71A0FE]">more</span> and achieve your
           financial <span className="text-[#71A0FE]">goals</span>
