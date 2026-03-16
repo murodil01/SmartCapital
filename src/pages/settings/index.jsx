@@ -306,7 +306,6 @@ export default function Settings() {
     setLoading(true);
     try {
       const data = await settingsAPI.getProfile();
-      console.log("Profile data:", data);
 
       // Full name dan name va surname ni ajratish
       const nameParts = (data.full_name || "").split(" ");
@@ -324,7 +323,6 @@ export default function Settings() {
       });
     } catch (error) {
       message.error("Failed to load profile");
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -350,7 +348,6 @@ export default function Settings() {
       };
 
       const updated = await settingsAPI.updateProfile(profileData);
-      console.log("Updated profile:", updated);
 
       setSaved(true);
       message.success("Profile updated successfully");

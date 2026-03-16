@@ -1,38 +1,3 @@
-// import axiosInstance from '../axios';
-
-// export const authAPI = {
-//   // Register
-//   register: async (userData) => {
-//     try {
-//       const response = await axiosInstance.post('/auth/register', userData);
-//       if (response.data.token) {
-//         localStorage.setItem('token', response.data.token);
-//       }
-//       return response.data;
-//     } catch (error) {
-//       throw error.response?.data || { error: 'Registration failed' };
-//     }
-//   },
-
-//   // Login
-//   login: async (credentials) => {
-//     try {
-//       const response = await axiosInstance.post('/auth/login ', credentials);
-//       if (response.data.token) {
-//         localStorage.setItem('token', response.data.token);
-//       }
-//       return response.data;
-//     } catch (error) {
-//       throw error.response?.data || { error: 'Login failed' };
-//     }
-//   },
-
-//   // Logout
-//   logout: () => {
-//     localStorage.removeItem('token');
-//   }
-// };
-
 // authAPI.js
 import axiosInstance from '../axios';
 

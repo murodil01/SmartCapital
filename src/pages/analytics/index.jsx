@@ -1037,6 +1037,16 @@ const Analytics = () => {
 
   const viewOptions = ["Monthly View", "Weekly View", "Yearly View"];
 
+   const getIncomeIcon = (index) => {
+    const icons = ["💼", "💰", "👥", "🌿", "📊", "🏦"];
+    return icons[index % icons.length];
+  };
+
+  const getExpenseIcon = (index) => {
+    const icons = ["🏪", "🍕", "🚗", "🎮", "🛒", "🏥"];
+    return icons[index % icons.length];
+  };
+
   // Fetch all analytics data
   const fetchAllAnalytics = useCallback(async () => {
     setLoading(true);
@@ -1223,16 +1233,6 @@ const Analytics = () => {
       })),
     [expenseCategories],
   );
-
-  const getIncomeIcon = (index) => {
-    const icons = ["💼", "💰", "👥", "🌿", "📊", "🏦"];
-    return icons[index % icons.length];
-  };
-
-  const getExpenseIcon = (index) => {
-    const icons = ["🏪", "🍕", "🚗", "🎮", "🛒", "🏥"];
-    return icons[index % icons.length];
-  };
 
   const handleViewSelect = (panel, opt) => {
     if (panel === "analytics") {
