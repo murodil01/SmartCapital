@@ -2453,7 +2453,7 @@ export default function Debts() {
             {/* Desktop Table View */}
             <table className="min-w-full border-collapse desktop-table">
               <thead>
-                <tr>
+                <tr> 
                   <th style={thStyle}>People</th>
                   <th style={thStyle}>Type</th>
                   <th style={thStyle}>Amount</th>

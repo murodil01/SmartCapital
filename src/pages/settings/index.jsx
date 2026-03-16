@@ -415,15 +415,9 @@ export default function Settings() {
 
       <div className="shadow-sm bg-white p-5 border border-[#E0E0E0] rounded-2xl">
         {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 24,
-          }}
+        <div className="flex justify-between items-center mb-6 gap-1"
         >
-          <h3 className="text-[18px] sm:text-[20px] md:text-[22px] lg:text-[24px] xl:text-[26px] text-gray-800 ">
+          <h3 className="text-[17px] sm:text-[20px] md:text-[22px] lg:text-[24px] xl:text-[26px] text-gray-800 ">
             My Profile
           </h3>
           <button

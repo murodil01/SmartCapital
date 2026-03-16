@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { settingsAPI } from "../../../api/settings";
 
 // ── Month picker data ─────────────────────────────────────────────
 const MONTHS = [
@@ -92,6 +93,43 @@ const Navbar = ({
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
 
+  // ── Profile data from API ────────────────────────────────────
+  const [profileData, setProfileData] = useState({
+    full_name: "",
+    email: "",
+    avatar_url: null,
+  });
+  const [loading, setLoading] = useState(true);
+
+  // ── Fetch profile data ───────────────────────────────────────
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await settingsAPI.getProfile();
+        setProfileData(data);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  // ── Get initials for avatar ──────────────────────────────────
+  const getInitials = () => {
+    if (profileData.full_name) {
+      return profileData.full_name
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    return "U";
+  };
+
   // ── Close dropdowns on outside click ─────────────────────────
   useEffect(() => {
     const handler = (e) => {
@@ -123,6 +161,13 @@ const Navbar = ({
       ? "This month"
       : `${MONTHS[selectedMonth].slice(0, 3)} ${pickerYear}`;
 
+  // ── Handle logout ────────────────────────────────────────────
+  const handleLogout = () => {
+    localStorage.removeItem("tokenData");
+    setProfileOpen(false);
+    navigate("/login");
+  };
+
   return (
     <div className="bg-[#EEF1FF] shadow-2xl border-b border-[#E0E0E0] px-4 py-6 flex flex-col gap-2 relative">
       {/* Mobile search bar */}
@@ -152,7 +197,7 @@ const Navbar = ({
       )}
 
       {/* Main row */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between gap-1 items-center">
         {/* LEFT */}
         <div className="flex items-center gap-3">
           {/* Desktop toggle */}
@@ -350,10 +395,24 @@ const Navbar = ({
               }}
               className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[#D1D5DB] text-[13px] font-medium text-gray-700 bg-white/60 hover:bg-white transition-all duration-150"
             >
-              <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold">
-                DS
-              </div>
-              <span className="hidden md:inline">Daniel Smith</span>
+              {profileData.avatar_url ? (
+                <img
+                  src={profileData.avatar_url}
+                  alt={profileData.full_name}
+                  className="w-6 h-6 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold">
+                  {loading ? "..." : getInitials()}
+                </div>
+              )}
+              <span className="hidden md:inline">
+                {loading
+                  ? "Loading"
+                  : (profileData.full_name?.length > 10
+                      ? profileData.full_name.slice(0, 12) + "..."
+                      : profileData.full_name) || "User"}
+              </span>
               <ChevronDown
                 size={13}
                 className={`text-gray-400 transition-transform duration-200 ${profileOpen ? "rotate-180" : ""}`}
@@ -364,46 +423,50 @@ const Navbar = ({
               <div className="absolute right-0 top-[110%] z-50 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl w-52 overflow-hidden">
                 <div className="px-4 py-3 border-b border-gray-100">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
-                      DS
-                    </div>
+                    {profileData.avatar_url ? (
+                      <img
+                        src={profileData.avatar_url}
+                        alt={profileData.full_name}
+                        className="w-9 h-9 rounded-full object-cover shrink-0"
+                      />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                        {getInitials()}
+                      </div>
+                    )}
                     <div>
-                      <p className="text-[13px] font-semibold text-gray-800">
-                        Daniel Smith
+                      <p className="text-[13px] font-medium text-gray-800">
+                        {profileData.full_name
+                          ? profileData.full_name.slice(0, 18)
+                          : "User"}
                       </p>
-                      <p className="text-[11px] text-gray-400">
-                        daniel@example.com
+                      <p className="text-[11px] text-gray-400 font-normal">
+                        {profileData.email || "user@example.com"}
                       </p>
                     </div>
                   </div>
                 </div>
                 {[
-                  { icon: User, label: "Profile" },
+                  { icon: User, label: "Profile", path: "" },
                   { icon: Bell, label: "Notifications" },
-                  { icon: Settings, label: "Settings" },
-                ].map(({ icon: Icon, label }) => (
+                  { icon: Settings, label: "Settings", path: "" },
+                ].map((item) => (
                   <button
-                    key={label}
+                    key={item.label}
                     className="flex items-center gap-3 w-full px-4 py-2.5 text-[13px] text-gray-600 hover:bg-gray-50 transition-colors"
-                    onClick={() => setProfileOpen(false)}
+                    onClick={() => {
+                      setProfileOpen(false);
+                      if (item.path) navigate(item.path);
+                    }}
                   >
-                    <Icon size={15} className="text-gray-400" />
-                    {label}
+                    <item.icon size={15} className="text-gray-400" />
+                    {item.label}
                   </button>
                 ))}
                 <div className="border-t border-gray-100">
                   <button
                     className="flex items-center gap-3 w-full px-4 py-2.5 text-[13px] text-red-500 hover:bg-red-50 transition-colors"
-                    onClick={() => {
-                      // 1. Tokenni o'chirish
-                      localStorage.removeItem("token");
-
-                      // 2. Profile dropdownni yopish
-                      setProfileOpen(false);
-
-                      // 3. Login sahifasiga yo'naltirish
-                      navigate("/login");
-                    }}
+                    onClick={handleLogout}
                   >
                     <LogOut size={15} className="text-red-400" />
                     Log out
