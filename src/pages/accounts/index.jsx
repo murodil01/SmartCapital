@@ -391,7 +391,7 @@ const Accounts = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalLoading, setModalLoading] = useState(false);
-  const [showChart, setShowChart] = useState(false);
+  const [showBalance, setShowBalance] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingAccount, setEditingAccount] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -573,37 +573,43 @@ const Accounts = () => {
       </div>
 
       {/* Total Balance Card */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div
+        className=" rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 60%, #e8f4fd 100%)",
+        }}
+      >
         <div className="flex flex-col md:flex-row">
-          {/* Balance info */}
-          <div
-            className="relative p-6 flex-1 overflow-hidden"
-            style={{
-              background:
-                "linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 60%, #e8f4fd 100%)",
-            }}
-          >
+          {/* Balance Info */}
+          <div className="relative p-6 flex-1 overflow-hidden">
             <WavePattern />
+
             <div className="relative z-10">
               <div className="flex items-center gap-2 text-gray-600 text-[13px] mb-2">
                 My Total Balance
+                {/* Show / Hide balance */}
                 <button
-                  onClick={() => setShowChart(!showChart)}
-                  className="hover:scale-110 transition-transform"
+                  onClick={() => setShowBalance(!showBalance)}
+                  className="hover:scale-110 transition-transform cursor-pointer"
                 >
-                  {showChart ? (
-                    <EyeOff size={16} className="text-blue-500" />
+                  {showBalance ? (
+                    <Eye size={16} className="text-gray-500" />
                   ) : (
-                    <Eye size={16} className="text-blue-500" />
+                    <EyeOff size={16} className="text-gray-500" />
                   )}
                 </button>
               </div>
+
+              {/* Balance */}
               <div className="flex items-baseline gap-2 mb-1">
                 <span className="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[31px] xl:text-[34px] font-bold text-gray-900 tracking-tight">
-                  {fmt(total)}
+                  {showBalance ? fmt(total) : "••••••"}
                 </span>
+
                 <span className="text-gray-400 text-[13px]">UZS</span>
               </div>
+
               <p className="text-gray-400 text-[12px]">
                 Across {accounts.length} accounts
               </p>
@@ -611,15 +617,48 @@ const Accounts = () => {
           </div>
 
           {/* Pie Chart */}
-          {showChart && pieData.length > 0 && (
-            <div
-              className="flex-1 p-4 flex items-center justify-center border-t md:border-t-0 md:border-l border-gray-100"
-              style={{
-                background:
-                  "linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 60%, #e8f4fd 100%)",
-              }}
-            >
-              <div className="w-full" style={{ height: 200 }}>
+          {pieData.length > 0 && (
+            <div className="flex-1 p-4 flex items-center justify-center border-t md:border-t-0 md:border-l border-gray-100">
+              {/* MOBILE */}
+              <div className="w-full h-42.5 md:hidden">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="45%"
+                      outerRadius={55}
+                      dataKey="value"
+                      labelLine={false}
+                    >
+                      {pieData.map((entry, i) => (
+                        <Cell key={i} fill={entry.color} />
+                      ))}
+                    </Pie>
+
+                    <Tooltip
+                      formatter={(val, name) => [`${fmt(val)} UZS`, name]}
+                      contentStyle={{
+                        borderRadius: 10,
+                        fontSize: 12,
+                        border: "1px solid #e5e7eb",
+                      }}
+                    />
+
+                    <Legend
+                      layout="horizontal"
+                      align="center"
+                      verticalAlign="bottom"
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: 10 }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* DESKTOP (sizdagi original) */}
+              <div className="hidden md:block w-full h-50">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -635,6 +674,7 @@ const Accounts = () => {
                         <Cell key={i} fill={entry.color} />
                       ))}
                     </Pie>
+
                     <Tooltip
                       formatter={(val, name) => [`${fmt(val)} UZS`, name]}
                       contentStyle={{
@@ -643,6 +683,7 @@ const Accounts = () => {
                         border: "1px solid #e5e7eb",
                       }}
                     />
+
                     <Legend
                       layout="vertical"
                       align="right"

@@ -27,6 +27,7 @@ const HomeLayout = () => {
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         collapsed={collapsed}
+        setCollapsed={setCollapsed}
         mobileOpen={mobileOpen}
         setMobileOpen={setMobileOpen}
       />
@@ -36,7 +37,6 @@ const HomeLayout = () => {
         <Navbar
           activeSection={activeSection} 
           collapsed={collapsed}
-          setCollapsed={setCollapsed}
           mobileOpen={mobileOpen}
           setMobileOpen={setMobileOpen}
         />
@@ -44,7 +44,7 @@ const HomeLayout = () => {
         {/* Content area */}
         <div
           id="content-area"
-          className="flex-1 bg-gray-100 p-4 overflow-auto no-scrollbar"
+          className="flex-1 bg-gray-100 py-3 sm:py-4 px-3 lg:px-9.5 overflow-auto no-scrollbar"
         >
           <Outlet />
         </div>

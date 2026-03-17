@@ -1,17 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ChevronsRight,
   Search,
   ChevronDown,
   Calendar,
   X,
-  Bell,
   LogOut,
-  User,
-  Settings,
   ChevronLeft,
   ChevronRight,
+  Menu,
 } from "lucide-react";
 import { settingsAPI } from "../../../api/settings";
 
@@ -71,8 +68,6 @@ const sectionTitles = {
 
 const Navbar = ({
   activeSection = "dashboard",
-  collapsed,
-  setCollapsed,
   mobileOpen,
   setMobileOpen,
 }) => {
@@ -169,7 +164,7 @@ const Navbar = ({
   };
 
   return (
-    <div className="bg-[#EEF1FF] shadow-2xl border-b border-[#E0E0E0] px-4 py-6 flex flex-col gap-2 relative">
+    <div className="bg-[#EEF1FF] shadow-2xl border-b border-[#E0E0E0] px-2 lg:px-9.5 py-3 flex flex-col gap-2 relative">
       {/* Mobile search bar */}
       {mobileSearchOpen && (
         <div
@@ -199,42 +194,34 @@ const Navbar = ({
       {/* Main row */}
       <div className="flex justify-between gap-1 items-center">
         {/* LEFT */}
-        <div className="flex items-center gap-3">
-          {/* Desktop toggle */}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/60 transition-colors"
-          >
-            <ChevronsRight
-              size={20}
-              className={`text-gray-600 transition-transform duration-300 ${collapsed ? "" : "rotate-180"}`}
-            />
-          </button>
-
-          {/* Mobile toggle */}
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          {/* Mobile menu button - Yangi qo'shildi */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/60 transition-colors"
+            className="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/60 transition-colors shrink-0"
           >
-            <ChevronsRight
-              size={20}
-              className={`text-gray-600 transition-transform duration-300 ${mobileOpen ? "rotate-180" : ""}`}
-            />
+            <Menu size={20} className="text-gray-600" />
           </button>
 
-          {/* Section title & subtitle */}
-          <div className="flex flex-col">
-            <h3 className="text-base sm:text-lg md:text-xl lg:text-[22px] font-semibold text-black leading-tight">
+          {/* Section title & subtitle - Responsive qilindi */}
+          <div className="flex flex-col min-w-0 flex-1">
+            <h3 
+              className="text-[13px] sm:text-lg md:text-xl lg:text-[22px] font-semibold text-black leading-tight truncate" 
+              title={title}
+            >
               {title}
             </h3>
-            <p className="hidden md:block text-[13px] font-normal text-gray-500 mt-0.5">
+            <p 
+              className="hidden md:block text-[13px] font-normal text-gray-500 mt-0.5 truncate" 
+              title={subtitle}
+            >
               {subtitle}
             </p>
           </div>
         </div>
 
         {/* RIGHT */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Desktop Search */}
           <div className="relative hidden md:flex items-center">
             <Search
@@ -246,7 +233,7 @@ const Navbar = ({
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder="Search..."
-              className="w-52 pl-9 pr-8 py-2 text-[13px] bg-white/60 border border-[#D1D5DB] rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all duration-150"
+              className="w-44 lg:w-52 pl-9 pr-8 py-2 text-[13px] bg-white/60 border border-[#D1D5DB] rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all duration-150"
             />
             {searchValue && (
               <button
@@ -261,7 +248,7 @@ const Navbar = ({
           {/* Mobile Search icon */}
           <button
             onClick={() => setMobileSearchOpen(true)}
-            className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-[#D1D5DB] bg-white/60 hover:bg-white transition-colors"
+            className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border border-[#D1D5DB] bg-white/60 hover:bg-white transition-colors shrink-0"
           >
             <Search size={16} className="text-gray-500" />
           </button>
@@ -273,13 +260,18 @@ const Navbar = ({
                 setMonthOpen(!monthOpen);
                 setProfileOpen(false);
               }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#D1D5DB] text-[13px] font-medium text-gray-600 bg-white/60 hover:bg-white transition-all duration-150"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#D1D5DB] text-[13px] font-medium text-gray-600 bg-white/60 hover:bg-white transition-all duration-150 whitespace-nowrap"
             >
-              <Calendar size={14} className="text-gray-400" />
-              {monthLabel}
+              <Calendar size={14} className="text-gray-400 shrink-0" />
+              <span className="hidden lg:inline">{monthLabel}</span>
+              <span className="lg:hidden">
+                {selectedMonth === today.getMonth() && pickerYear === today.getFullYear()
+                  ? "This month"
+                  : `${MONTHS[selectedMonth].slice(0, 3)} ${pickerYear}`}
+              </span>
               <ChevronDown
                 size={13}
-                className={`text-gray-400 transition-transform duration-200 ${monthOpen ? "rotate-180" : ""}`}
+                className={`text-gray-400 transition-transform duration-200 shrink-0 ${monthOpen ? "rotate-180" : ""}`}
               />
             </button>
 
@@ -304,11 +296,8 @@ const Navbar = ({
                 </div>
                 <div className="grid grid-cols-3 gap-1.5">
                   {MONTHS.map((m, i) => {
-                    const isSelected =
-                      i === selectedMonth && pickerYear === pickerYear;
-                    const isToday =
-                      i === today.getMonth() &&
-                      pickerYear === today.getFullYear();
+                    const isSelected = i === selectedMonth;
+                    const isToday = i === today.getMonth() && pickerYear === today.getFullYear();
                     return (
                       <button
                         key={m}
@@ -345,7 +334,7 @@ const Navbar = ({
                 setMonthOpen(!monthOpen);
                 setProfileOpen(false);
               }}
-              className="flex items-center justify-center w-9 h-9 rounded-xl border border-[#D1D5DB] bg-white/60 hover:bg-white transition-colors"
+              className="flex items-center justify-center w-9 h-9 rounded-xl border border-[#D1D5DB] bg-white/60 hover:bg-white transition-colors shrink-0"
             >
               <Calendar size={16} className="text-gray-500" />
             </button>
@@ -354,9 +343,7 @@ const Navbar = ({
               <div className="absolute right-0 top-[110%] z-50 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl p-4 w-64">
                 <div className="grid grid-cols-3 gap-1.5">
                   {MONTHS.map((m, i) => {
-                    const isToday =
-                      i === today.getMonth() &&
-                      pickerYear === today.getFullYear();
+                    const isToday = i === today.getMonth() && pickerYear === today.getFullYear();
                     return (
                       <button
                         key={m}
@@ -393,29 +380,29 @@ const Navbar = ({
                 setProfileOpen(!profileOpen);
                 setMonthOpen(false);
               }}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[#D1D5DB] text-[13px] font-medium text-gray-700 bg-white/60 hover:bg-white transition-all duration-150"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[#D1D5DB] text-[13px] font-medium text-gray-700 bg-white/60 hover:bg-white transition-all duration-150 shrink-0"
             >
               {profileData.avatar_url ? (
                 <img
                   src={profileData.avatar_url}
                   alt={profileData.full_name}
-                  className="w-6 h-6 rounded-full object-cover"
+                  className="w-6 h-6 rounded-full object-cover shrink-0"
                 />
               ) : (
-                <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold">
+                <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                   {loading ? "..." : getInitials()}
                 </div>
               )}
-              <span className="hidden md:inline">
+              <span className="hidden md:inline max-w-20 truncate">
                 {loading
                   ? "Loading"
-                  : (profileData.full_name?.length > 10
-                      ? profileData.full_name.slice(0, 12) + "..."
+                  : (profileData.full_name?.length > 8
+                      ? profileData.full_name.slice(0, 8) + "..."
                       : profileData.full_name) || "User"}
               </span>
               <ChevronDown
                 size={13}
-                className={`text-gray-400 transition-transform duration-200 ${profileOpen ? "rotate-180" : ""}`}
+                className={`text-gray-400 transition-transform duration-200 shrink-0 ${profileOpen ? "rotate-180" : ""}`}
               />
             </button>
 
@@ -434,42 +421,26 @@ const Navbar = ({
                         {getInitials()}
                       </div>
                     )}
-                    <div>
-                      <p className="text-[13px] font-medium text-gray-800">
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-medium text-gray-800 truncate">
                         {profileData.full_name
                           ? profileData.full_name.slice(0, 18)
                           : "User"}
                       </p>
-                      <p className="text-[11px] text-gray-400 font-normal">
+                      <p className="text-[11px] text-gray-400 font-normal truncate">
                         {profileData.email || "user@example.com"}
                       </p>
                     </div>
                   </div>
                 </div>
-                {[
-                  { icon: User, label: "Profile", path: "" },
-                  { icon: Bell, label: "Notifications" },
-                  { icon: Settings, label: "Settings", path: "" },
-                ].map((item) => (
-                  <button
-                    key={item.label}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 text-[13px] text-gray-600 hover:bg-gray-50 transition-colors"
-                    onClick={() => {
-                      setProfileOpen(false);
-                      if (item.path) navigate(item.path);
-                    }}
-                  >
-                    <item.icon size={15} className="text-gray-400" />
-                    {item.label}
-                  </button>
-                ))}
+
                 <div className="border-t border-gray-100">
                   <button
                     className="flex items-center gap-3 w-full px-4 py-2.5 text-[13px] text-red-500 hover:bg-red-50 transition-colors"
                     onClick={handleLogout}
                   >
-                    <LogOut size={15} className="text-red-400" />
-                    Log out
+                    <LogOut size={15} className="text-red-400 shrink-0" />
+                    <span className="truncate">Log out</span>
                   </button>
                 </div>
               </div>

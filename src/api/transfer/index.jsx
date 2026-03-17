@@ -13,7 +13,7 @@ export const transfersAPI = {
       const tokenData = JSON.parse(localStorage.getItem('tokenData'));
       if (!tokenData) throw { error: 'No token found' };
 
-      const response = await axiosInstance.get('/transfers/', {
+      const response = await axiosInstance.get('/transfers', {
         headers: {
           Authorization: `${tokenData.token.token_type} ${tokenData.token.access_token}`,
         },
@@ -41,7 +41,7 @@ export const transfersAPI = {
       const tokenData = JSON.parse(localStorage.getItem('tokenData'));
       if (!tokenData) throw { error: 'No token found' };
 
-      const response = await axiosInstance.get(`/transfers/${id}/`, {
+      const response = await axiosInstance.get(`/transfers/${id}`, {
         headers: {
           Authorization: `${tokenData.token.token_type} ${tokenData.token.access_token}`,
         },
@@ -82,7 +82,7 @@ export const transfersAPI = {
 
       console.log('Sending transfer payload:', payload); // Debug uchun
 
-      const response = await axiosInstance.post('/transfers/', payload, {
+      const response = await axiosInstance.post('/transfers', payload, {
         headers: {
           Authorization: `${tokenData.token.token_type} ${tokenData.token.access_token}`,
         },
@@ -102,7 +102,7 @@ export const transfersAPI = {
       const tokenData = JSON.parse(localStorage.getItem('tokenData'));
       if (!tokenData) throw { error: 'No token found' };
 
-      const response = await axiosInstance.delete(`/transfers/${id}/`, {
+      const response = await axiosInstance.delete(`/transfers/${id}`, {
         headers: {
           Authorization: `${tokenData.token.token_type} ${tokenData.token.access_token}`,
         },

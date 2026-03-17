@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { familyAPI } from "../../api/family";
+import { goalsAPI } from "../../api/goals";
 import { message } from "antd";
 
 const COLORS = ["#2563eb", "#16a34a", "#7c3aed", "#d97706", "#dc2626"];
@@ -135,7 +136,11 @@ function Btn({ onClick, children, variant = "primary", style = {}, loading }) {
     },
   };
   return (
-    <button onClick={onClick} disabled={loading} style={{ ...base, ...styles[variant], ...style }}>
+    <button
+      onClick={onClick}
+      disabled={loading}
+      style={{ ...base, ...styles[variant], ...style }}
+    >
       {loading ? "Loading..." : children}
     </button>
   );
@@ -173,33 +178,10 @@ function Toast({ msg }) {
 
 export default function Family() {
   const [members, setMembers] = useState([]);
+  const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalLoading, setModalLoading] = useState(false);
-  
-  const [goals, setGoals] = useState([
-    {
-      name: "Family Vacation",
-      emoji: "🏖️",
-      current: 12000000,
-      target: 15000000,
-      color: "#2563eb",
-    },
-    {
-      name: "New Car",
-      emoji: "🚗",
-      current: 12000000,
-      target: 15000000,
-      color: "#d97706",
-    },
-    {
-      name: "Education",
-      emoji: "🎓",
-      current: 12000000,
-      target: 15000000,
-      color: "#7c3aed",
-    },
-  ]);
-  
+
   const [activity, setActivity] = useState([
     {
       name: "Name Surname",
@@ -214,7 +196,7 @@ export default function Family() {
       time: "2 hours ago",
     },
   ]);
-  
+
   const [page, setPage] = useState(1);
   const [chartView, setChartView] = useState("Monthly View");
 
@@ -230,19 +212,20 @@ export default function Family() {
     role: "member",
     balance: "",
   });
-  
+
   const [editForm, setEditForm] = useState({
     name: "",
     email: "",
     role: "member",
     status: "Active",
   });
-  
+
   const [goalForm, setGoalForm] = useState({
     name: "",
-    emoji: "",
+    emoji: "🎯",
     current: "",
     target: "",
+    category: "Savings",
   });
 
   const [isMobile, setIsMobile] = useState(false);
@@ -259,23 +242,158 @@ export default function Family() {
     return () => window.removeEventListener("resize", checkRes);
   }, []);
 
-  // Fetch family members
-  const fetchMembers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await familyAPI.getAll();
-      setMembers(data);
-    } catch (error) {
-      console.error('Fetch members error:', error);
-      message.error('Failed to load family members');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Fetch all data
+  const fetchAllData = useCallback(async () => {
+  setLoading(true);
+  try {
+    // Current month uchun parametr
+    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
 
+    console.log('Fetching data for month:', currentMonth);
+
+    // Parallel fetch members and goals
+    const [membersResult, goalsResult] = await Promise.allSettled([
+      familyAPI.getAll().catch((err) => {
+        console.warn("Failed to fetch members:", err);
+        return [];
+      }),
+      goalsAPI.getAll(currentMonth).catch((err) => {
+        console.warn("Failed to fetch goals:", err);
+        return null;
+      }),
+    ]);
+
+    // Handle members data
+    if (membersResult.status === "fulfilled") {
+      console.log('Members fetched:', membersResult.value?.length || 0);
+      setMembers(membersResult.value || []);
+    } else {
+      console.warn("Members fetch failed:", membersResult.reason);
+      setMembers([]);
+    }
+
+    // Handle goals data - transform to frontend format
+    let transformedGoals = [];
+    
+    if (goalsResult.status === "fulfilled" && goalsResult.value) {
+      const goalData = goalsResult.value;
+      console.log('Goals fetched:', goalData);
+      
+      // ALWAYS show savings goal, even if target is 0
+      const savingsTarget = parseFloat(goalData.savings_target || '0');
+      const savingsAchieved = parseFloat(goalData.savings_achieved || '0');
+      
+      transformedGoals.push({
+        id: 'savings',
+        name: 'Savings Goal',
+        emoji: '🏦',
+        current: savingsAchieved,
+        target: savingsTarget > 0 ? savingsTarget : 10000000, // Default target if 0
+        color: '#2563eb',
+        month: goalData.month,
+        category: 'Savings',
+        achieved: savingsAchieved,
+        remaining: parseFloat(goalData.savings_remaining || '0')
+      });
+
+      // Add categories as goals if they exist
+      if (goalData.categories && Array.isArray(goalData.categories) && goalData.categories.length > 0) {
+        goalData.categories.forEach((cat, index) => {
+          const target = parseFloat(cat.target || '0');
+          const spent = parseFloat(cat.spent || '0');
+          
+          if (target > 0) {
+            transformedGoals.push({
+              id: `cat-${index}`,
+              name: cat.category || 'Unnamed',
+              emoji: getCategoryEmoji(cat.category),
+              current: spent,
+              target: target,
+              exceeded: cat.exceeded || false,
+              color: getCategoryColor(index + 1), // +1 to avoid same color as savings
+              month: goalData.month,
+              category: cat.category
+            });
+          }
+        });
+      }
+    }
+
+    console.log('Transformed goals:', transformedGoals);
+    setGoals(transformedGoals);
+
+  } catch (error) {
+    console.error("Fetch data error:", error);
+    message.error("Failed to load data");
+  } finally {
+    setLoading(false);
+  }
+  }, []);
+  
   useEffect(() => {
-    fetchMembers();
-  }, [fetchMembers]);
+    fetchAllData();
+  }, [fetchAllData]);
+
+  // Helper to get emoji by category
+  const getCategoryEmoji = (category) => {
+    if (!category) return "🎯";
+
+    const emojiMap = {
+      Food: "🍔",
+      Transport: "🚗",
+      Entertainment: "🎮",
+      Shopping: "🛒",
+      Bills: "📄",
+      Health: "💊",
+      Education: "🎓",
+      Travel: "✈️",
+      Savings: "🏦",
+      "Family Vacation": "🏖️",
+      "New Car": "🚗",
+      Home: "🏠",
+      Internet: "🌐",
+      Utilities: "💡",
+      Clothing: "👕",
+      Insurance: "🛡️",
+      Salary: "💰",
+      Rent: "🏠",
+      Groceries: "🛒",
+      Dining: "🍽️",
+      Coffee: "☕",
+      Gym: "🏋️",
+      Medical: "🏥",
+      Phone: "📱",
+      Subscription: "📺",
+    };
+
+    // Try exact match
+    if (emojiMap[category]) return emojiMap[category];
+
+    // Try case-insensitive match
+    const lowerCategory = category.toLowerCase();
+    for (const [key, value] of Object.entries(emojiMap)) {
+      if (key.toLowerCase() === lowerCategory) return value;
+    }
+
+    return "🎯";
+  };
+
+  // Helper to get color by index
+  const getCategoryColor = (index) => {
+    const colors = [
+      "#2563eb",
+      "#d97706",
+      "#7c3aed",
+      "#16a34a",
+      "#dc2626",
+      "#f59e0b",
+      "#8b5cf6",
+      "#10b981",
+      "#ef4444",
+      "#3b82f6",
+    ];
+    return colors[index % colors.length];
+  };
 
   const showToast = (msg) => {
     setToast(msg);
@@ -287,7 +405,7 @@ export default function Family() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this member?")) return;
-    
+
     setModalLoading(true);
     try {
       await familyAPI.delete(id);
@@ -297,7 +415,7 @@ export default function Family() {
       }
       showToast("Member deleted");
     } catch (error) {
-      message.error('Failed to delete member');
+      message.error("Failed to delete member");
     } finally {
       setModalLoading(false);
     }
@@ -305,11 +423,11 @@ export default function Family() {
 
   const handleEdit = (member) => {
     setEditId(member.id);
-    setEditForm({ 
-      name: member.name, 
-      email: member.email || '',
-      role: member.role, 
-      status: member.status 
+    setEditForm({
+      name: member.name,
+      email: member.email || "",
+      role: member.role,
+      status: member.status,
     });
     setEditModal(true);
   };
@@ -334,7 +452,7 @@ export default function Family() {
       setEditModal(false);
       showToast("Member updated");
     } catch (error) {
-      message.error('Failed to update member');
+      message.error("Failed to update member");
     } finally {
       setModalLoading(false);
     }
@@ -356,7 +474,7 @@ export default function Family() {
         name: inviteForm.name,
         email: inviteForm.email,
         role: inviteForm.role,
-        status: "Invited"
+        status: "Invited",
       });
 
       const formattedMember = {
@@ -366,7 +484,7 @@ export default function Family() {
         role: inviteForm.role,
         status: "Invited",
         joined_at: new Date().toISOString().slice(0, 10),
-        balance: +inviteForm.balance || 0
+        balance: +inviteForm.balance || 0,
       };
 
       setMembers((prev) => [...prev, formattedMember]);
@@ -379,44 +497,105 @@ export default function Family() {
         },
         ...prev,
       ]);
-      
+
       setInviteForm({ name: "", email: "", role: "member", balance: "" });
       setInviteModal(false);
       showToast("Member invited successfully!");
     } catch (error) {
-      message.error('Failed to invite member');
+      message.error("Failed to invite member");
     } finally {
       setModalLoading(false);
     }
   };
 
-  const addGoal = () => {
-    if (!goalForm.name.trim()) {
-      showToast("Please enter goal name");
+  const addGoal = async () => {
+  if (!goalForm.name.trim()) {
+    showToast("Please enter goal name");
+    return;
+  }
+  if (!goalForm.target || Number(goalForm.target) <= 0) {
+    showToast("Please enter a valid target amount");
+    return;
+  }
+
+  setModalLoading(true);
+  try {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    
+    // First, get existing goals for this month
+    const existingGoals = await goalsAPI.getAll(currentMonth);
+    
+    let categories = [];
+    let savingsTarget = "0";
+    
+    if (existingGoals) {
+      // Keep existing savings target
+      savingsTarget = existingGoals.savings_target?.toString() || "0";
+      
+      // Add existing categories
+      if (existingGoals.categories && Array.isArray(existingGoals.categories)) {
+        categories = existingGoals.categories.map(cat => ({
+          category: cat.category,
+          target: cat.target.toString(),
+          spent: cat.spent?.toString() || "0",
+          exceeded: cat.exceeded || false
+        }));
+      }
+    }
+    
+    // Check if category already exists
+    const categoryExists = categories.some(c => c.category === goalForm.name);
+    if (categoryExists) {
+      showToast("This category already exists");
+      setModalLoading(false);
       return;
     }
-    const colors = ["#2563eb", "#d97706", "#7c3aed", "#16a34a"];
-    setGoals((prev) => [
-      ...prev,
-      {
-        name: goalForm.name,
-        emoji: goalForm.emoji || "🎯",
-        current: +goalForm.current || 0,
-        target: +goalForm.target || 15000000,
-        color: colors[prev.length % colors.length],
-      },
-    ]);
-    setGoalForm({ name: "", emoji: "", current: "", target: "" });
+    
+    // Add new category
+    categories.push({
+      category: goalForm.name,
+      target: goalForm.target.toString(),
+      spent: goalForm.current?.toString() || "0",
+      exceeded: false
+    });
+
+    if (existingGoals && existingGoals.id) {
+      // Update existing goal
+      await goalsAPI.update(existingGoals.id, {
+        month: currentMonth,
+        savings_target: savingsTarget,
+        categories: categories
+      });
+    } else {
+      // Create new goal
+      await goalsAPI.create({
+        month: currentMonth,
+        savings_target: "0",
+        categories: categories
+      });
+    }
+
+    // Refresh data
+    await fetchAllData();
+    
+    setGoalForm({ name: "", emoji: "🎯", current: "", target: "", category: "Savings" });
     setGoalModal(false);
-    showToast("Goal added!");
-  };
+    showToast("Goal added successfully!");
+  } catch (error) {
+    console.error('Add goal error:', error);
+    message.error('Failed to add goal');
+  } finally {
+    setModalLoading(false);
+  }
+};
 
   const cd = chartData[chartView];
   const maxBar = 50;
 
   // Calculate totals
-  const totalBalance = useMemo(() => 
-    members.reduce((sum, m) => sum + (m.balance || 0), 0), [members]
+  const totalBalance = useMemo(
+    () => members.reduce((sum, m) => sum + (m.balance || 0), 0),
+    [members],
   );
 
   // ── Styles ─────────────────────────────────────────────────────────────────
@@ -583,19 +762,18 @@ export default function Family() {
         >
           ‹ Prev
         </button>
-        {Array.from(
-          { length: Math.min(totalPages, 4) },
-          (_, i) => i + 1,
-        ).map((n) => (
-          <button
-            key={n}
-            onClick={() => setPage(n)}
-            style={s.pageBtn(page === n)}
-            disabled={modalLoading}
-          >
-            {n}
-          </button>
-        ))}
+        {Array.from({ length: Math.min(totalPages, 4) }, (_, i) => i + 1).map(
+          (n) => (
+            <button
+              key={n}
+              onClick={() => setPage(n)}
+              style={s.pageBtn(page === n)}
+              disabled={modalLoading}
+            >
+              {n}
+            </button>
+          ),
+        )}
         <button
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           style={{
@@ -671,14 +849,20 @@ export default function Family() {
             },
             {
               label: "Shared Budgets",
-              value: members.length,
+              value: goals.length,
               unit: "Active",
-              change: "Since last month",
+              change: "Family goals",
               border: "#7c3aed",
             },
           ].map((st, i) => (
             <div key={i} style={s.statCard(st.border)}>
-              <div style={{ fontSize: isSmallMobile ? 12 : 13, color: "#64748b", marginBottom: 6 }}>
+              <div
+                style={{
+                  fontSize: isSmallMobile ? 12 : 13,
+                  color: "#64748b",
+                  marginBottom: 6,
+                }}
+              >
                 {st.label}
               </div>
               <div
@@ -690,12 +874,22 @@ export default function Family() {
               >
                 {st.value}{" "}
                 <span
-                  style={{ fontSize: isSmallMobile ? 10 : 12, fontWeight: 500, color: "#64748b" }}
+                  style={{
+                    fontSize: isSmallMobile ? 10 : 12,
+                    fontWeight: 500,
+                    color: "#64748b",
+                  }}
                 >
                   {st.unit}
                 </span>
               </div>
-              <div style={{ fontSize: isSmallMobile ? 11 : 12, color: "#64748b", marginTop: 4 }}>
+              <div
+                style={{
+                  fontSize: isSmallMobile ? 11 : 12,
+                  color: "#64748b",
+                  marginTop: 4,
+                }}
+              >
                 <span
                   style={{
                     color:
@@ -750,8 +944,17 @@ export default function Family() {
               </div>
 
               {/* Jadval gorizontal scroll bilan */}
-              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }} className="no-scrollbar">
-                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: isSmallMobile ? 500 : "100%" }}>
+              <div
+                style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}
+                className="no-scrollbar"
+              >
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    minWidth: isSmallMobile ? 500 : "100%",
+                  }}
+                >
                   <thead>
                     <tr style={{ background: "#1a2550" }}>
                       {["Member", "Role", "Joined", "Status", "Action"].map(
@@ -778,7 +981,14 @@ export default function Family() {
                   <tbody>
                     {pageMembers.length === 0 ? (
                       <tr>
-                        <td colSpan={5} style={{ textAlign: 'center', padding: 40, color: '#64748b' }}>
+                        <td
+                          colSpan={5}
+                          style={{
+                            textAlign: "center",
+                            padding: 40,
+                            color: "#64748b",
+                          }}
+                        >
                           No family members yet
                         </td>
                       </tr>
@@ -800,19 +1010,33 @@ export default function Family() {
                                 }}
                               >
                                 <div
-                                  style={s.avatar(COLORS[absIdx % COLORS.length])}
+                                  style={s.avatar(
+                                    COLORS[absIdx % COLORS.length],
+                                  )}
                                 >
                                   {initials(m.name)}
                                 </div>
                                 <div style={{ minWidth: 0 }}>
-                                  <div style={{ fontSize: isSmallMobile ? 12 : 13, fontWeight: 600 }}>
-                                    {m.name.length > (isSmallMobile ? 10 : 20) 
-                                      ? m.name.substring(0, isSmallMobile ? 8 : 18) + "..." 
+                                  <div
+                                    style={{
+                                      fontSize: isSmallMobile ? 12 : 13,
+                                      fontWeight: 600,
+                                    }}
+                                  >
+                                    {m.name.length > (isSmallMobile ? 10 : 20)
+                                      ? m.name.substring(
+                                          0,
+                                          isSmallMobile ? 8 : 18,
+                                        ) + "..."
                                       : m.name}
                                   </div>
                                   {m.email && (
-                                    <div style={{ fontSize: 10, color: '#64748b' }}>
-                                      {m.email.length > 15 ? m.email.substring(0, 12) + '...' : m.email}
+                                    <div
+                                      style={{ fontSize: 10, color: "#64748b" }}
+                                    >
+                                      {m.email.length > 15
+                                        ? m.email.substring(0, 12) + "..."
+                                        : m.email}
                                     </div>
                                   )}
                                 </div>
@@ -824,22 +1048,33 @@ export default function Family() {
                                   background: badge.bg,
                                   color: badge.color,
                                   borderRadius: 20,
-                                  padding: isSmallMobile ? "2px 8px" : "3px 10px",
+                                  padding: isSmallMobile
+                                    ? "2px 8px"
+                                    : "3px 10px",
                                   fontSize: isSmallMobile ? 10 : 11,
                                   fontWeight: 600,
                                 }}
                               >
-                                {m.role.charAt(0).toUpperCase() + m.role.slice(1)}
+                                {m.role.charAt(0).toUpperCase() +
+                                  m.role.slice(1)}
                               </span>
                             </td>
                             <td style={s.td}>{m.joined_at}</td>
                             <td style={s.td}>
                               <span
                                 style={{
-                                  background: m.status === 'Active' ? '#e6f7e6' : '#f0f0f0',
-                                  color: m.status === 'Active' ? '#16a34a' : '#64748b',
+                                  background:
+                                    m.status === "Active"
+                                      ? "#e6f7e6"
+                                      : "#f0f0f0",
+                                  color:
+                                    m.status === "Active"
+                                      ? "#16a34a"
+                                      : "#64748b",
                                   borderRadius: 20,
-                                  padding: isSmallMobile ? "2px 8px" : "3px 10px",
+                                  padding: isSmallMobile
+                                    ? "2px 8px"
+                                    : "3px 10px",
                                   fontSize: isSmallMobile ? 10 : 11,
                                   fontWeight: 600,
                                 }}
@@ -848,7 +1083,12 @@ export default function Family() {
                               </span>
                             </td>
                             <td style={s.td}>
-                              <div style={{ display: "flex", gap: isSmallMobile ? 4 : 8 }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  gap: isSmallMobile ? 4 : 8,
+                                }}
+                              >
                                 <button
                                   onClick={() => handleEdit(m)}
                                   style={s.iconBtn}
@@ -892,7 +1132,9 @@ export default function Family() {
                     {Math.min(page * PER_PAGE, members.length)} of{" "}
                     {members.length} records
                   </span>
-                  <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                  <div
+                    style={{ display: "flex", gap: 4, alignItems: "center" }}
+                  >
                     {renderPagination()}
                   </div>
                   {!isSmallMobile && (
@@ -908,12 +1150,14 @@ export default function Family() {
             <div style={{ ...s.card, marginTop: 20 }}>
               <div style={s.cardHeader}>
                 <span style={{ ...s.cardTitle }}>Overview</span>
-                <div style={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  gap: isSmallMobile ? 8 : 16,
-                  flexWrap: isSmallMobile ? "wrap" : "nowrap"
-                }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: isSmallMobile ? 8 : 16,
+                    flexWrap: isSmallMobile ? "wrap" : "nowrap",
+                  }}
+                >
                   {!isMobile && (
                     <div
                       style={{
@@ -962,8 +1206,20 @@ export default function Family() {
                   </select>
                 </div>
               </div>
-              <div className="no-scrollbar" style={{ overflowX: "auto", paddingBottom: 10, WebkitOverflowScrolling: "touch" }}>
-                <div style={{ display: "flex", minWidth: isSmallMobile ? 350 : 400 }}>
+              <div
+                className="no-scrollbar"
+                style={{
+                  overflowX: "auto",
+                  paddingBottom: 10,
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    minWidth: isSmallMobile ? 350 : 400,
+                  }}
+                >
                   <div
                     style={{
                       display: "flex",
@@ -1032,7 +1288,12 @@ export default function Family() {
                             }}
                           ></div>
                         </div>
-                        <span style={{ fontSize: isSmallMobile ? 8 : 10, color: "#94a3b8" }}>
+                        <span
+                          style={{
+                            fontSize: isSmallMobile ? 8 : 10,
+                            color: "#94a3b8",
+                          }}
+                        >
                           {label}
                         </span>
                       </div>
@@ -1047,7 +1308,9 @@ export default function Family() {
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div style={s.card}>
               <div style={s.cardHeader}>
-                <span style={{ fontSize: isSmallMobile ? 15 : 16 }}>Shared Goals</span>
+                <span style={{ fontSize: isSmallMobile ? 15 : 16 }}>
+                  Shared Goals
+                </span>
                 <button
                   onClick={() => setGoalModal(true)}
                   disabled={modalLoading}
@@ -1066,87 +1329,108 @@ export default function Family() {
                   + Add
                 </button>
               </div>
-              {goals.map((g, i) => {
-                const pct = Math.min(
-                  100,
-                  Math.round((g.current / g.target) * 100),
-                );
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      display: "flex",
-                      gap: 10,
-                      padding: isSmallMobile ? "10px 0" : "12px 0",
-                      borderBottom:
-                        i < goals.length - 1 ? "1px solid #e2e8f0" : "none",
-                    }}
-                  >
+              {goals.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "20px",
+                    color: "#64748b",
+                  }}
+                >
+                  No goals yet. Add your first family goal!
+                </div>
+              ) : (
+                goals.map((g, i) => {
+                  const pct =
+                    g.target > 0
+                      ? Math.min(
+                          100,
+                          Math.round(((g.current || 0) / g.target) * 100),
+                        )
+                      : 0;
+
+                  return (
                     <div
+                      key={i}
                       style={{
-                        width: isSmallMobile ? 32 : 40,
-                        height: isSmallMobile ? 32 : 40,
-                        borderRadius: 10,
-                        background: "#f1f5f9",
                         display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: isSmallMobile ? 16 : 18,
-                        flexShrink: 0,
+                        gap: 10,
+                        padding: isSmallMobile ? "10px 0" : "12px 0",
+                        borderBottom:
+                          i < goals.length - 1 ? "1px solid #e2e8f0" : "none",
                       }}
                     >
-                      {g.emoji}
-                    </div>
-                    <div style={{ flex: 1 }}>
                       <div
                         style={{
+                          width: isSmallMobile ? 32 : 40,
+                          height: isSmallMobile ? 32 : 40,
+                          borderRadius: 10,
+                          background: "#f1f5f9",
                           display: "flex",
-                          justifyContent: "space-between",
-                          marginBottom: 4,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: isSmallMobile ? 16 : 18,
+                          flexShrink: 0,
                         }}
                       >
-                        <span style={{ fontSize: isSmallMobile ? 12 : 13, fontWeight: 600 }}>
-                          {g.name}
-                        </span>
-                        <span
-                          style={{
-                            fontSize: isSmallMobile ? 11 : 12,
-                            fontWeight: 700,
-                            color: g.color,
-                          }}
-                        >
-                          {pct}%
-                        </span>
+                        {g.emoji}
                       </div>
-                      <div
-                        style={{
-                          fontSize: isSmallMobile ? 10 : 11,
-                          color: "#64748b",
-                          marginBottom: 6,
-                        }}
-                      >
-                        UZS {fmt(g.current)} / {fmt(g.target)}
-                      </div>
-                      <div
-                        style={{
-                          height: isSmallMobile ? 4 : 6,
-                          background: "#e2e8f0",
-                          borderRadius: 99,
-                          overflow: "hidden",
-                        }}
-                      >
+                      <div style={{ flex: 1 }}>
                         <div
                           style={{
-                            width: `${pct}%`,
-                            height: "100%",
-                            background: g.color,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            marginBottom: 4,
                           }}
-                        />
+                        >
+                          <span
+                            style={{
+                              fontSize: isSmallMobile ? 12 : 13,
+                              fontWeight: 600,
+                            }}
+                          >
+                            {g.name}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: isSmallMobile ? 11 : 12,
+                              fontWeight: 700,
+                              color: g.color,
+                            }}
+                          >
+                            {pct}%
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            fontSize: isSmallMobile ? 10 : 11,
+                            color: "#64748b",
+                            marginBottom: 6,
+                          }}
+                        >
+                          UZS {fmt(g.current || 0)} / {fmt(g.target)}
+                        </div>
+                        <div
+                          style={{
+                            height: isSmallMobile ? 4 : 6,
+                            background: "#e2e8f0",
+                            borderRadius: 99,
+                            overflow: "hidden",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: `${pct}%`,
+                              height: "100%",
+                              background: g.color,
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
 
             <div style={s.card}>
@@ -1172,7 +1456,11 @@ export default function Family() {
                   }}
                 >
                   <div
-                    style={{ ...s.avatar("#1a2550"), width: isSmallMobile ? 32 : 36, height: isSmallMobile ? 32 : 36 }}
+                    style={{
+                      ...s.avatar("#1a2550"),
+                      width: isSmallMobile ? 32 : 36,
+                      height: isSmallMobile ? 32 : 36,
+                    }}
                   >
                     {initials(a.name)}
                   </div>
@@ -1188,7 +1476,12 @@ export default function Family() {
                     >
                       {a.name}
                     </div>
-                    <div style={{ fontSize: isSmallMobile ? 10 : 11, color: "#64748b" }}>
+                    <div
+                      style={{
+                        fontSize: isSmallMobile ? 10 : 11,
+                        color: "#64748b",
+                      }}
+                    >
                       {a.time}
                     </div>
                   </div>
@@ -1264,7 +1557,12 @@ export default function Family() {
             />
           </Field>
           <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
-            <Btn variant="secondary" onClick={() => setInviteModal(false)} disabled={modalLoading} loading={modalLoading}>
+            <Btn
+              variant="secondary"
+              onClick={() => setInviteModal(false)}
+              disabled={modalLoading}
+              loading={modalLoading}
+            >
               Cancel
             </Btn>
             <Btn onClick={addMember} loading={modalLoading}>
@@ -1328,7 +1626,12 @@ export default function Family() {
             </select>
           </Field>
           <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
-            <Btn variant="secondary" onClick={() => setEditModal(false)} disabled={modalLoading} loading={modalLoading}>
+            <Btn
+              variant="secondary"
+              onClick={() => setEditModal(false)}
+              disabled={modalLoading}
+              loading={modalLoading}
+            >
               Cancel
             </Btn>
             <Btn onClick={saveEdit} loading={modalLoading}>
@@ -1349,7 +1652,7 @@ export default function Family() {
               onChange={(e) =>
                 setGoalForm((f) => ({ ...f, name: e.target.value }))
               }
-              placeholder="e.g. New House"
+              placeholder="e.g. Family Vacation"
               disabled={modalLoading}
             />
           </Field>
@@ -1361,10 +1664,11 @@ export default function Family() {
                 setGoalForm((f) => ({ ...f, emoji: e.target.value }))
               }
               maxLength={2}
+              placeholder="🎯"
               disabled={modalLoading}
             />
           </Field>
-          <Field label="Current Amount">
+          <Field label="Current Amount (UZS)">
             <input
               style={inputStyle}
               type="number"
@@ -1372,10 +1676,11 @@ export default function Family() {
               onChange={(e) =>
                 setGoalForm((f) => ({ ...f, current: e.target.value }))
               }
+              placeholder="0"
               disabled={modalLoading}
             />
           </Field>
-          <Field label="Target Amount">
+          <Field label="Target Amount (UZS) *">
             <input
               style={inputStyle}
               type="number"
@@ -1383,11 +1688,17 @@ export default function Family() {
               onChange={(e) =>
                 setGoalForm((f) => ({ ...f, target: e.target.value }))
               }
+              placeholder="15000000"
               disabled={modalLoading}
             />
           </Field>
           <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
-            <Btn variant="secondary" onClick={() => setGoalModal(false)} disabled={modalLoading} loading={modalLoading}>
+            <Btn
+              variant="secondary"
+              onClick={() => setGoalModal(false)}
+              disabled={modalLoading}
+              loading={modalLoading}
+            >
               Cancel
             </Btn>
             <Btn onClick={addGoal} loading={modalLoading}>
@@ -2172,8 +2483,8 @@ export default function Family() {
 //                                 {initials(m.name)}
 //                               </div>
 //                               <span style={{ fontSize: isSmallMobile ? 12 : 13 }}>
-//                                 {m.name.length > (isSmallMobile ? 10 : 20) 
-//                                   ? m.name.substring(0, isSmallMobile ? 8 : 18) + "..." 
+//                                 {m.name.length > (isSmallMobile ? 10 : 20)
+//                                   ? m.name.substring(0, isSmallMobile ? 8 : 18) + "..."
 //                                   : m.name}
 //                               </span>
 //                             </div>
@@ -2250,9 +2561,9 @@ export default function Family() {
 //             <div style={{ ...s.card, marginTop: 20 }}>
 //               <div style={s.cardHeader}>
 //                 <span style={{ ...s.cardTitle }}>Overview</span>
-//                 <div style={{ 
-//                   display: "flex", 
-//                   alignItems: "center", 
+//                 <div style={{
+//                   display: "flex",
+//                   alignItems: "center",
 //                   gap: isSmallMobile ? 8 : 16,
 //                   flexWrap: isSmallMobile ? "wrap" : "nowrap"
 //                 }}>

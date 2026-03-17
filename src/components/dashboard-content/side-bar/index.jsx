@@ -10,6 +10,8 @@ import {
   Database,
   Headset,
   Signal,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import logo from "../../../assets/images/logo.png";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +20,7 @@ const Sidebar = ({
   activeSection,
   setActiveSection,
   collapsed,
+  setCollapsed,
   mobileOpen,
   setMobileOpen,
 }) => {
@@ -51,14 +54,14 @@ const Sidebar = ({
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Mobile overlay - faqat mobile va planshetda ko'rinadi */}
       <div
-        className={`fixed inset-0 z-40 md:hidden transition-opacity ${
+        className={`fixed inset-0 z-40 lg:hidden transition-opacity ${
           mobileOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         }`}
-        onClick={() => setMobileOpen(false)} // overlay bosilganda yopilsin
+        onClick={() => setMobileOpen(false)}
       >
         <div className="absolute inset-0 bg-black/50"></div>
       </div>
@@ -67,23 +70,36 @@ const Sidebar = ({
       <div
         className={`${baseClasses} 
         ${desktopWidth} 
-        fixed md:relative z-50 
+        fixed lg:relative z-50 
         left-0 top-0 h-full 
-        transform md:translate-x-0 transition-all duration-300 ease-in-out
-        ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
+        transform lg:translate-x-0 transition-all duration-300 ease-in-out
+        ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
-        {/* Logo */}
+        {/* Logo va Collapse button */}
         <div
-          className={`flex items-center py-4 border-b border-gray-700 transition-all duration-300 ease-in-out ${
+          className={`relative flex items-center py-4 border-b border-gray-700 transition-all duration-300 ease-in-out ${
             collapsed ? "justify-center px-3" : "justify-start px-6"
           }`}
         >
-          <img src={logo} alt="Logo" className="w-10 h-10" />
+          <img src={logo} alt="Logo" className="w-10 h-10 shrink-0" />
           {!collapsed && (
-            <h3 className="ml-2 text-lg font-semibold tracking-wide">
+            <h3 className="ml-2 text-lg font-semibold tracking-wide whitespace-nowrap">
               SmartCapital
             </h3>
           )}
+
+          {/* Collapse button - Yarim doira ko'rinishida */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="hidden lg:flex absolute -right-6.5 top-1/2 -translate-y-1/2 items-center justify-end pr-1 w-6.25 h-12.25 rounded-r-full bg-[#EEF1FF] text-[#B7BCE6] shadow-[4px_0_10px_rgba(0,0,0,0.05)] hover:bg-[#e4e8ff] hover:text-[#5c67f2] transition-all z-10 border-y border-r border-[#DDE2FF]"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? (
+              <ChevronsRight size={24} className="transition-transform" />
+            ) : (
+              <ChevronsLeft size={24} className="transition-transform" />
+            )}
+          </button>
         </div>
 
         {/* Main Sections */}
@@ -107,12 +123,15 @@ const Sidebar = ({
                     : "hover:bg-white hover:text-blue-900"
                 }`}
               >
-                {section.icon}
-                {!collapsed && <span>{section.label}</span>}
+                <span className="shrink-0">{section.icon}</span>
+                {!collapsed && (
+                  <span className="truncate">{section.label}</span>
+                )}
               </button>
 
+              {/* Tooltip for collapsed mode */}
               {collapsed && (
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out whitespace-nowrap">
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out whitespace-nowrap z-50">
                   {section.label}
                 </div>
               )}
@@ -133,10 +152,9 @@ const Sidebar = ({
               <button
                 onClick={() => {
                   if (section.id === "logout") {
-                    localStorage.removeItem("token");
+                    localStorage.removeItem("tokenData");
                     navigate("/login");
                   } else if (section.id === "support") {
-                    // Telegram linkga yo'naltirish
                     window.open("https://t.me/Murodil_N", "_blank");
                   } else {
                     setActiveSection(section.id);
@@ -149,12 +167,15 @@ const Sidebar = ({
                     : "hover:bg-white hover:text-blue-900"
                 }`}
               >
-                {section.icon}
-                {!collapsed && <span>{section.label}</span>}
+                <span className="shrink-0">{section.icon}</span>
+                {!collapsed && (
+                  <span className="truncate">{section.label}</span>
+                )}
               </button>
 
+              {/* Tooltip for collapsed mode */}
               {collapsed && (
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
                   {section.label}
                 </div>
               )}
