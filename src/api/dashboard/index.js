@@ -8,16 +8,6 @@ const parseBigNumber = (numStr) => {
   return parseFloat(cleanStr) || 0;
 };
 
-// Transaction kind ni mapping qilish
-// const mapKindToIcon = (kind) => {
-//   switch(kind) {
-//     case 'income': return 'trending-up';
-//     case 'expense': return 'shopping-bag';
-//     case 'transfer': return 'arrow-left-right';
-//     default: return 'plus';
-//   }
-// };
-
 export const dashboardAPI = {
   // GET dashboard data
   getDashboard: async () => {

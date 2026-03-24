@@ -155,7 +155,7 @@ const Sidebar = ({
                     localStorage.removeItem("tokenData");
                     navigate("/login");
                   } else if (section.id === "support") {
-                    window.open("https://t.me/Murodil_N", "_blank");
+                    window.open("https://t.me/smartcapitalapp", "_blank");
                   } else {
                     setActiveSection(section.id);
                     setMobileOpen(false);

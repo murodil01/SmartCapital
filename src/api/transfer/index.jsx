@@ -90,8 +90,6 @@ export const transfersAPI = {
 
       return response.data;
     } catch (error) {
-      console.error('Create transfer error:', error);
-      console.error('Error response:', error.response?.data); // Debug uchun
       throw error.response?.data || { error: 'Failed to create transfer' };
     }
   },
@@ -110,7 +108,6 @@ export const transfersAPI = {
 
       return response.data;
     } catch (error) {
-      console.error('Delete transfer error:', error);
       throw error.response?.data || { error: 'Failed to delete transfer' };
     }
   }

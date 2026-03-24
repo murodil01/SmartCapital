@@ -248,27 +248,20 @@ export default function Family() {
   try {
     // Current month uchun parametr
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-
-    console.log('Fetching data for month:', currentMonth);
-
     // Parallel fetch members and goals
     const [membersResult, goalsResult] = await Promise.allSettled([
-      familyAPI.getAll().catch((err) => {
-        console.warn("Failed to fetch members:", err);
+      familyAPI.getAll().catch(() => {
         return [];
       }),
-      goalsAPI.getAll(currentMonth).catch((err) => {
-        console.warn("Failed to fetch goals:", err);
+      goalsAPI.getAll(currentMonth).catch(() => {
         return null;
       }),
     ]);
 
     // Handle members data
     if (membersResult.status === "fulfilled") {
-      console.log('Members fetched:', membersResult.value?.length || 0);
       setMembers(membersResult.value || []);
     } else {
-      console.warn("Members fetch failed:", membersResult.reason);
       setMembers([]);
     }
 
@@ -277,7 +270,6 @@ export default function Family() {
     
     if (goalsResult.status === "fulfilled" && goalsResult.value) {
       const goalData = goalsResult.value;
-      console.log('Goals fetched:', goalData);
       
       // ALWAYS show savings goal, even if target is 0
       const savingsTarget = parseFloat(goalData.savings_target || '0');
@@ -319,11 +311,9 @@ export default function Family() {
       }
     }
 
-    console.log('Transformed goals:', transformedGoals);
     setGoals(transformedGoals);
 
   } catch (error) {
-    console.error("Fetch data error:", error);
     message.error("Failed to load data");
   } finally {
     setLoading(false);
@@ -582,7 +572,6 @@ export default function Family() {
     setGoalModal(false);
     showToast("Goal added successfully!");
   } catch (error) {
-    console.error('Add goal error:', error);
     message.error('Failed to add goal');
   } finally {
     setModalLoading(false);
@@ -1437,7 +1426,6 @@ export default function Family() {
               <div
                 style={{
                   ...s.cardTitle,
-                  fontFamily: "'Syne', sans-serif",
                   marginBottom: 16,
                 }}
               >

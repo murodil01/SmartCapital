@@ -16,7 +16,6 @@ export const calendarAPI = {
       });
       return response.data;
     } catch (error) {
-      console.error("getYearData error:", error);
       throw error.response?.data || { error: "Failed to fetch year data" };
     }
   },
@@ -56,7 +55,6 @@ export const calendarAPI = {
 
       return data || {};
     } catch (error) {
-      console.error("getMonthData error:", error);
       throw error.response?.data || { error: "Failed to fetch month data" };
     }
   },
@@ -88,8 +86,6 @@ export const calendarAPI = {
 
       return response.data || null;
     } catch (error) {
-      console.error("getDayData error:", error);
-      console.error("Error details:", error.response?.data);
       throw error.response?.data || { error: "Failed to fetch day data" };
     }
   },
@@ -113,7 +109,6 @@ export const calendarAPI = {
       );
       return response.data;
     } catch (error) {
-      console.error("addTransaction error:", error);
       throw error.response?.data || { error: "Failed to add transaction" };
     }
   },
@@ -137,7 +132,6 @@ export const calendarAPI = {
       );
       return response.data;
     } catch (error) {
-      console.error("updateTransaction error:", error);
       throw error.response?.data || { error: "Failed to update transaction" };
     }
   },
@@ -160,7 +154,6 @@ export const calendarAPI = {
       );
       return response.data;
     } catch (error) {
-      console.error("deleteTransaction error:", error);
       throw error.response?.data || { error: "Failed to delete transaction" };
     }
   },

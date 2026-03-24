@@ -523,9 +523,6 @@ const Transactions = () => {
     setModalLoading(true);
     try {
       const amt = Number(form.amount);
-
-      console.log("Saving transaction:", form);
-
       if (modal === "edit" && editTx) {
         const [originalType, originalId] = editTx.id.split("_");
 
@@ -599,7 +596,6 @@ const Transactions = () => {
       setModal(null);
       setPage(1);
     } catch (error) {
-      console.error("Save error:", error);
       message.error(
         error.response?.data?.detail || "Failed to save transaction",
       );
