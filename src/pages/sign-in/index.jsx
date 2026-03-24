@@ -188,20 +188,62 @@
 
 // export default SignIn;
 
-import { Form, Input, Checkbox, message } from "antd";
+import { Form, Input, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
 import sign_bg from "../../assets/images/sign_bg.png";
 import { MoveRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ForgotPassword from "../../components/sign-in/forgot-password";
 import NewPassword from "../../components/sign-in/new-password";
 import { authAPI } from "../../api/auth";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const SignIn = () => {
   const [step, setStep] = useState("phone");
   const [loading, setLoading] = useState(false);
+  const [mobileLeftHeight, setMobileLeftHeight] = useState("100vh");
+  const [mobileRightVisible, setMobileRightVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
+
+  // Ekran o'lchamini aniqlash
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // AOS faqat mobile uchun
+  useEffect(() => {
+    if (isMobile) {
+      AOS.init({ duration: 800, once: true });
+    }
+  }, [isMobile]);
+
+  // Mobile left side height animatsiyasi
+  useEffect(() => {
+    if (isMobile) {
+      let height = 100;
+      const interval = setInterval(() => {
+        height -= 2;
+        if (height <= 35) {
+          height = 35;
+          clearInterval(interval);
+          setMobileRightVisible(true);
+        }
+        setMobileLeftHeight(height + "vh");
+      }, 15);
+      return () => clearInterval(interval);
+    } else {
+      setMobileLeftHeight("auto");
+      setMobileRightVisible(true);
+    }
+  }, [isMobile]);
 
   const handleSignIn = async (values) => {
     setLoading(true);
@@ -223,11 +265,17 @@ const SignIn = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-0 h-screen">
+    <div 
+      className="flex flex-col lg:flex-row gap-0 min-h-screen overflow-hidden"
+      {...(isMobile ? { "data-aos": "fade-zoom-in" } : {})}
+    >
       {/* LEFT SIDE */}
       <div
-        className="flex flex-col gap-6 lg:gap-12.5 p-7.5 w-full lg:w-120 text-white lg:p-10 bg-no-repeat bg-cover bg-position-[center_top] lg:bg-center"
-        style={{ backgroundImage: `url(${sign_bg})` }}
+        className="flex flex-col gap-6 lg:gap-12.5 p-7.5 w-full lg:w-120 text-white lg:p-10 bg-no-repeat bg-cover bg-position-[center_top] lg:bg-center transition-all duration-700 ease-in-out"
+        style={{
+          backgroundImage: `url(${sign_bg})`,
+          height: mobileLeftHeight,
+        }}
       >
         <div className="flex items-center gap-3">
           <img src={logo} alt="Logo" className="w-10" />
@@ -242,7 +290,20 @@ const SignIn = () => {
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="bg-white rounded-t-3xl lg:rounded-none flex flex-col flex-1 items-center -mt-5 lg:mt-0 justify-center relative p-4">
+      <div
+        className="bg-white rounded-t-3xl lg:rounded-none flex flex-col flex-1 items-center -mt-5 lg:mt-0 justify-center relative p-4"
+        style={
+          isMobile
+            ? {
+                opacity: mobileRightVisible ? 1 : 0,
+                transform: mobileRightVisible
+                  ? "translateY(0)"
+                  : "translateY(24px)",
+                transition: "opacity 0.6s ease, transform 0.6s ease",
+              }
+            : {}
+        }
+      >
         {/* Top-right "Get started" */}
         <div className="relative lg:absolute lg:top-8 lg:right-8 flex justify-end lg:justify-start items-center gap-3 lg:gap-5 mb-4 lg:mb-0">
           <button

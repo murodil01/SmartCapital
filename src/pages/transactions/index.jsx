@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import {
   Plus,
   Pencil,
@@ -26,10 +26,25 @@ const PAGE_SIZE = 8;
 const fmt = (n) => Math.abs(n).toLocaleString("ru-RU").replace(/,/g, " ");
 
 const accountColorMap = {
-  Uzcard: "#3b82f6",
-  Humo: "#f97316",
-  Cash: "#22c55e",
-  Visa: "#a855f7",
+  CASH: "#3b82f6",
+  "BANK ACCOUNT": "#f97316",
+  CARD: "#22c55e",
+  EWALLET: "#a855f7",
+};
+
+// Fixed account mapping (Backend expects IDs 1-4, NOT 0)
+const ACCOUNT_MAPPING = {
+  "CASH": 1,
+  "BANK ACCOUNT": 2,
+  "CARD": 3,
+  "EWALLET": 4,
+};
+
+const ACCOUNT_NAMES = {
+  1: "CASH",
+  2: "BANK ACCOUNT",
+  3: "CARD",
+  4: "EWALLET",
 };
 
 const Modal = ({ title, onClose, onSave, initial, loading, accounts }) => {
@@ -38,7 +53,7 @@ const Modal = ({ title, onClose, onSave, initial, loading, accounts }) => {
       date: new Date().toISOString().slice(0, 10),
       category: "Food",
       description: "",
-      account: accounts?.[0] || "Uzcard",
+      account: accounts?.[0] || "CASH",
       amount: "",
       type: "expense",
     },
@@ -46,36 +61,38 @@ const Modal = ({ title, onClose, onSave, initial, loading, accounts }) => {
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
-  // Transfer uchun account formatini sozlash
-  const getTransferAccountDisplay = () => {
+  const getTransferAccountDisplay = useCallback(() => {
     if (accounts.length >= 2) {
       return `${accounts[0]} → ${accounts[1]}`;
     }
-    return "Uzcard → Humo";
-  };
+    return "CASH → BANK ACCOUNT";
+  }, [accounts]);
 
-  // Type o'zgarganda account va category ni moslash
+  // Type o'zgarganda account va category ni moslash - FIXED: using useCallback and proper dependencies
   useEffect(() => {
+    let newAccount = form.account;
+    let newCategory = form.category;
+    
     if (form.type === "expense") {
-      setForm((f) => ({
-        ...f,
-        account: accounts[0] || "Uzcard",
-        category: f.category === "Salary" ? "Food" : f.category,
-      }));
+      newAccount = accounts[0] || "CASH";
+      newCategory = form.category === "Salary" ? "Food" : form.category;
     } else if (form.type === "income") {
-      setForm((f) => ({
-        ...f,
-        account: accounts[1] || accounts[0] || "Humo",
-        category: "Salary",
-      }));
+      newAccount = accounts[1] || accounts[0] || "BANK ACCOUNT";
+      newCategory = "Salary";
     } else if (form.type === "transfer") {
+      newAccount = getTransferAccountDisplay();
+      newCategory = "Transfer";
+    }
+    
+    // Only update if values changed
+    if (newAccount !== form.account || newCategory !== form.category) {
       setForm((f) => ({
         ...f,
-        account: getTransferAccountDisplay(),
-        category: "Transfer",
+        account: newAccount,
+        category: newCategory,
       }));
     }
-  }, [form.type, accounts]);
+  }, [form.type, accounts, getTransferAccountDisplay, form.account, form.category]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
@@ -88,14 +105,13 @@ const Modal = ({ title, onClose, onSave, initial, loading, accounts }) => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 pt-2 scrollbar-hide">
-          {/* Transaction Type Selection */}
           <div className="flex flex-col gap-1.5 mb-3">
             <label className="text-[12px] font-normal text-black">Type</label>
             <div className="flex gap-2">
               {["expense", "income", "transfer"].map((t) => (
                 <button
                   key={t}
-                  type="button" // form ichida bo'lsa submit bo'lib ketmasligi uchun
+                  type="button"
                   onClick={() => set("type", t)}
                   className={`flex-1 py-2 rounded-xl text-[12px] font-semibold capitalize transition-all ${
                     form.type === t
@@ -113,7 +129,6 @@ const Modal = ({ title, onClose, onSave, initial, loading, accounts }) => {
             </div>
           </div>
 
-          {/* Amount Input */}
           <div className="flex flex-col gap-1.5 mb-3">
             <label className="text-[12px] font-normal text-black">Amount</label>
             <div className="relative">
@@ -122,7 +137,7 @@ const Modal = ({ title, onClose, onSave, initial, loading, accounts }) => {
                 placeholder="0.00"
                 value={form.amount}
                 onChange={(e) => set("amount", e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <span className="absolute right-3 top-2.5 text-gray-400 text-[12px]">
                 UZS
@@ -130,9 +145,8 @@ const Modal = ({ title, onClose, onSave, initial, loading, accounts }) => {
             </div>
           </div>
 
-          {/* Date Input */}
           <div className="flex flex-col gap-1.5 mb-3">
-            <label className="text-[12px] font-normal text-black ">Date</label>
+            <label className="text-[12px] font-normal text-black">Date</label>
             <input
               type="date"
               value={form.date}
@@ -141,7 +155,6 @@ const Modal = ({ title, onClose, onSave, initial, loading, accounts }) => {
             />
           </div>
 
-          {/* Category Select */}
           <div className="flex flex-col gap-1.5 mb-3">
             <label className="text-[12px] font-normal text-black">
               Category
@@ -163,7 +176,6 @@ const Modal = ({ title, onClose, onSave, initial, loading, accounts }) => {
             </select>
           </div>
 
-          {/* Account Select */}
           <div className="flex flex-col gap-1.5 mb-3">
             <label className="text-[12px] font-normal text-black">
               {form.type === "transfer" ? "Transfer Path" : "Account"}
@@ -193,7 +205,7 @@ const Modal = ({ title, onClose, onSave, initial, loading, accounts }) => {
                   ))}
             </select>
           </div>
-          {/* Description Input */}
+
           <div className="flex flex-col gap-1.5">
             <label className="text-[12px] font-normal text-black">
               Description
@@ -246,118 +258,56 @@ const Transactions = () => {
     amountMax: "",
   });
 
-  // Dynamic account mapping
-  const [accountMapping, setAccountMapping] = useState({
-    idToName: {},
-    nameToId: {},
-    accountList: ["Uzcard", "Humo", "Cash", "Visa"], // Default
-  });
+  const accountList = ["CASH", "BANK ACCOUNT", "CARD", "EWALLET"];
 
-  // Account ID dan name olish (dynamic)
-  const getAccountNameById = (accountId) => {
-    if (!accountId && accountId !== 0) return "Unknown";
-
-    const id =
-      typeof accountId === "string" ? parseInt(accountId, 10) : accountId;
-    let name =
-      accountMapping.idToName[id] || accountMapping.idToName[accountId];
-
-    return name || "Uzcard";
-  };
-
-  // Account name dan ID olish (dynamic)
-  const getAccountIdByName = (name) => {
-    if (!name) return null;
-
+  // Helper functions - CRITICAL FIX: Ensure we never send account_id = 0
+  const getAccountIdByName = useCallback((name) => {
+    if (!name) {
+      console.error("getAccountIdByName: name is empty");
+      return 1; // Default to CASH (ID 1)
+    }
+    
     if (name.includes("→")) {
       const [fromName] = name.split("→").map((s) => s.trim());
-      return accountMapping.nameToId[fromName];
+      const id = ACCOUNT_MAPPING[fromName];
+      if (!id) {
+        console.error(`Account "${fromName}" not found in mapping`);
+        return 1; // Default to CASH
+      }
+      return id;
     }
-
-    return accountMapping.nameToId[name];
-  };
-
-  // Account mappingni backenddan kelgan ma'lumotlar asosida yaratish
-  const buildAccountMapping = (expenses, incomes, transfers) => {
-    const accountIds = new Set();
-
-    expenses?.forEach((e) => e.account_id && accountIds.add(e.account_id));
-    incomes?.forEach((i) => i.account_id && accountIds.add(i.account_id));
-    transfers?.forEach((t) => {
-      t.from_account_id && accountIds.add(t.from_account_id);
-      t.to_account_id && accountIds.add(t.to_account_id);
-    });
-
-    const uniqueIds = Array.from(accountIds).map((id) =>
-      typeof id === "string" && !isNaN(Number(id)) ? Number(id) : id,
-    );
-
-    const uniqueIdsSet = new Set(uniqueIds);
-    const finalUniqueIds = Array.from(uniqueIdsSet);
-
-    // Account nomlari
-    const accountNames = ["Uzcard", "Humo", "Cash", "Visa"];
-
-    const newIdToName = {};
-    const newNameToId = {};
-    const newAccountList = [];
-
-    if (finalUniqueIds.length > 0) {
-      const sortedIds = [...finalUniqueIds].sort((a, b) => {
-        const numA = typeof a === "number" ? a : Number(a) || 0;
-        const numB = typeof b === "number" ? b : Number(b) || 0;
-        return numA - numB;
-      });
-
-      sortedIds.forEach((id, index) => {
-        if (index < accountNames.length) {
-          const name = accountNames[index];
-          newIdToName[id] = name;
-          newNameToId[name] = id;
-          newAccountList.push(name);
-        }
-      });
-    } else {
-      [1, 2, 3, 4].forEach((id, index) => {
-        const name = accountNames[index];
-        newIdToName[id] = name;
-        newNameToId[name] = id;
-        newAccountList.push(name);
-      });
+    
+    const id = ACCOUNT_MAPPING[name];
+    if (!id) {
+      console.error(`Account "${name}" not found in mapping`);
+      return 1; // Default to CASH
     }
+    return id;
+  }, []);
 
-    return {
-      idToName: newIdToName,
-      nameToId: newNameToId,
-      accountList: newAccountList.length > 0 ? newAccountList : accountNames,
-    };
-  };
+  const getAccountNameById = useCallback((id) => {
+    if (!id || id === 0) {
+      return "CASH";
+    }
+    return ACCOUNT_NAMES[id] || "CASH";
+  }, []);
 
   // Fetch all transactions
-  const fetchAllTransactions = async () => {
+  const fetchAllTransactions = useCallback(async () => {
     setLoading(true);
     try {
       const [expenses, incomes, transfers] = await Promise.all([
-        expensesAPI.getAll().catch(() => {
-          return [];
-        }),
-        incomesAPI.getAll().catch(() => {
-          return [];
-        }),
-        transfersAPI.getAll().catch(() => {
-          return [];
-        }),
+        expensesAPI.getAll().catch(() => []),
+        incomesAPI.getAll().catch(() => []),
+        transfersAPI.getAll().catch(() => []),
       ]);
-
-      const mapping = buildAccountMapping(expenses, incomes, transfers);
-      setAccountMapping(mapping);
 
       // Format expenses
       const formattedExpenses = expenses.map((exp) => {
         const accountName = getAccountNameById(exp.account_id);
         return {
           id: `exp_${exp.id}`,
-          date: exp.spent_at,
+          date: exp.spent_at?.split('T')[0] || exp.spent_at,
           category: exp.category || "Food",
           description: exp.description || exp.merchant || "",
           account: accountName,
@@ -375,7 +325,7 @@ const Transactions = () => {
         const accountName = getAccountNameById(inc.account_id);
         return {
           id: `inc_${inc.id}`,
-          date: inc.received_at,
+          date: inc.received_at?.split('T')[0] || inc.received_at,
           category: inc.category || "Salary",
           description: inc.source || "",
           account: accountName,
@@ -394,9 +344,9 @@ const Transactions = () => {
         const toAccountName = getAccountNameById(tr.to_account_id);
         return {
           id: `tr_${tr.id}`,
-          date: tr.transferred_at,
+          date: tr.transferred_at?.split('T')[0] || tr.transferred_at,
           category: "Transfer",
-          description: tr.note || `Transfer`,
+          description: tr.note || `Transfer from ${fromAccountName} to ${toAccountName}`,
           account: `${fromAccountName} → ${toAccountName}`,
           fromAccountId: tr.from_account_id,
           toAccountId: tr.to_account_id,
@@ -416,15 +366,16 @@ const Transactions = () => {
 
       setTransactions(combined);
     } catch (error) {
+      console.error("Fetch error:", error);
       message.error("Failed to load transactions");
     } finally {
       setLoading(false);
     }
-  };
+  }, [getAccountNameById]);
 
   useEffect(() => {
     fetchAllTransactions();
-  }, []);
+  }, [fetchAllTransactions]);
 
   const setFilter = (k, v) => {
     setFilters((f) => ({ ...f, [k]: v }));
@@ -434,7 +385,6 @@ const Transactions = () => {
   const filtered = useMemo(() => {
     let filteredTxs = [...transactions];
 
-    // Tab filter
     if (tab === "expenses") {
       filteredTxs = filteredTxs.filter((tx) => tx.type === "expense");
     } else if (tab === "income") {
@@ -443,21 +393,18 @@ const Transactions = () => {
       filteredTxs = filteredTxs.filter((tx) => tx.type === "transfer");
     }
 
-    // Category filter
     if (filters.category) {
       filteredTxs = filteredTxs.filter(
         (tx) => tx.category === filters.category,
       );
     }
 
-    // Account filter
     if (filters.account) {
       filteredTxs = filteredTxs.filter((tx) =>
         tx.account.includes(filters.account),
       );
     }
 
-    // Date filter
     if (filters.dateFrom) {
       filteredTxs = filteredTxs.filter((tx) => tx.date >= filters.dateFrom);
     }
@@ -465,7 +412,6 @@ const Transactions = () => {
       filteredTxs = filteredTxs.filter((tx) => tx.date <= filters.dateTo);
     }
 
-    // Amount filter
     if (filters.amountMin) {
       filteredTxs = filteredTxs.filter(
         (tx) => Math.abs(tx.amount) >= Number(filters.amountMin),
@@ -512,8 +458,8 @@ const Transactions = () => {
       setTransactions((t) => t.filter((tx) => tx.id !== id));
       message.success("Transaction deleted successfully");
     } catch (error) {
-      message.error("Failed to delete transaction");
-      console.log(error);
+      console.error("Delete error:", error);
+      message.error(error.response?.data?.detail || "Failed to delete transaction");
     } finally {
       setModalLoading(false);
     }
@@ -523,6 +469,11 @@ const Transactions = () => {
     setModalLoading(true);
     try {
       const amt = Number(form.amount);
+      
+      if (isNaN(amt) || amt <= 0) {
+        throw new Error("Please enter a valid amount");
+      }
+      
       if (modal === "edit" && editTx) {
         const [originalType, originalId] = editTx.id.split("_");
 
@@ -536,6 +487,7 @@ const Transactions = () => {
             merchant: form.description,
             category: form.category,
           });
+          message.success("Expense updated successfully");
         } else if (originalType === "inc") {
           const accountId = getAccountIdByName(form.account);
           await incomesAPI.update(originalId, {
@@ -545,10 +497,8 @@ const Transactions = () => {
             source: form.description,
             category: form.category,
           });
+          message.success("Income updated successfully");
         }
-
-        await fetchAllTransactions();
-        message.success("Transaction updated successfully");
       } else {
         if (form.type === "expense") {
           const accountId = getAccountIdByName(form.account);
@@ -596,8 +546,9 @@ const Transactions = () => {
       setModal(null);
       setPage(1);
     } catch (error) {
+      console.error("Save error:", error);
       message.error(
-        error.response?.data?.detail || "Failed to save transaction",
+        error.response?.data?.detail || error.message || "Failed to save transaction"
       );
     } finally {
       setModalLoading(false);
@@ -627,7 +578,7 @@ const Transactions = () => {
             date: new Date().toISOString().slice(0, 10),
             category: "Food",
             description: "",
-            account: accountMapping.accountList[0] || "Uzcard",
+            account: "CASH",
             amount: "",
             type: "expense",
           }
@@ -636,10 +587,7 @@ const Transactions = () => {
               date: new Date().toISOString().slice(0, 10),
               category: "Salary",
               description: "",
-              account:
-                accountMapping.accountList[1] ||
-                accountMapping.accountList[0] ||
-                "Humo",
+              account: "BANK ACCOUNT",
               amount: "",
               type: "income",
             }
@@ -647,10 +595,7 @@ const Transactions = () => {
               date: new Date().toISOString().slice(0, 10),
               category: "Transfer",
               description: "",
-              account:
-                accountMapping.accountList.length >= 2
-                  ? `${accountMapping.accountList[0]} → ${accountMapping.accountList[1]}`
-                  : "Uzcard → Humo",
+              account: "CASH → BANK ACCOUNT",
               amount: "",
               type: "transfer",
             };
@@ -674,7 +619,7 @@ const Transactions = () => {
           onSave={handleSave}
           initial={modalInitial}
           loading={modalLoading}
-          accounts={accountMapping.accountList}
+          accounts={accountList}
         />
       )}
 
@@ -684,7 +629,6 @@ const Transactions = () => {
           My Transactions
         </h3>
 
-        {/* Tugmalar konteyneri */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleAdd("add-expense")}
@@ -697,7 +641,6 @@ const Transactions = () => {
             </span>
           </button>
 
-          {/* 2. Add Income */}
           <button
             onClick={() => handleAdd("add-income")}
             className="flex items-center justify-center gap-2 p-2 lg:px-4 lg:py-2.5 bg-linear-to-r from-[#047857] to-[#10B981] text-white rounded-xl transition-all active:scale-95 shadow-md shadow-green-100"
@@ -709,7 +652,6 @@ const Transactions = () => {
             </span>
           </button>
 
-          {/* 3. Transfer */}
           <button
             onClick={() => handleAdd("add-transfer")}
             className="flex items-center justify-center gap-2 p-2 lg:px-4 lg:py-2.5 bg-linear-to-r from-[#4F8CFF] to-[#1E40AF] text-white rounded-xl transition-all active:scale-95 shadow-md shadow-blue-100"
@@ -751,7 +693,6 @@ const Transactions = () => {
       {/* Filters */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* Date Range - bitta input */}
           <div>
             <label className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] text-[#212121] font-medium mb-1 block">
               Date Range
@@ -768,7 +709,6 @@ const Transactions = () => {
             />
           </div>
 
-          {/* Category */}
           <div>
             <label className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] text-[#212121] font-medium mb-1 block">
               Category
@@ -787,7 +727,6 @@ const Transactions = () => {
             </select>
           </div>
 
-          {/* Account */}
           <div>
             <label className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] text-[#212121] font-medium mb-1 block">
               Account
@@ -798,7 +737,7 @@ const Transactions = () => {
               className="w-full border border-gray-200 rounded-[10px] px-3 py-2 text-[#25282C] text-[13px] sm:text-[14px] md:text-[15px] lg:text-[17px] focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">All Accounts</option>
-              {accountMapping.accountList.map((a) => (
+              {accountList.map((a) => (
                 <option key={a} value={a}>
                   {a}
                 </option>
@@ -806,7 +745,6 @@ const Transactions = () => {
             </select>
           </div>
 
-          {/* Amount Range - bitta input */}
           <div>
             <label className="text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] text-[#212121] font-medium mb-1 block">
               Amount
@@ -825,7 +763,6 @@ const Transactions = () => {
           </div>
         </div>
 
-        {/* Clear filters button */}
         {(filters.category ||
           filters.account ||
           filters.dateFrom ||
@@ -874,7 +811,7 @@ const Transactions = () => {
                     {h}
                   </th>
                 ))}
-              </tr>
+                </tr>
             </thead>
             <tbody>
               {paginated.length === 0 ? (
@@ -897,33 +834,24 @@ const Transactions = () => {
                     <td className="px-4 py-3 text-[12px] text-gray-600 whitespace-nowrap">
                       {tx.date}
                     </td>
-                    <td className="px-4 py-3 max-w-30">
-                      <div
-                        className="flex items-center gap-1.5 text-[12px] text-gray-700 truncate"
-                        title={tx.category}
-                      >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5 text-[12px] text-gray-700">
                         <Tag size={12} className="text-gray-400 shrink-0" />
-                        <span className="truncate">{tx.category}</span>
+                        <span>{tx.category}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 max-w-45">
-                      <div
-                        className="text-[12px] text-gray-500 truncate"
-                        title={tx.description || "—"}
-                      >
+                    <td className="px-4 py-3">
+                      <div className="text-[12px] text-gray-500">
                         {tx.description || "—"}
                       </div>
                     </td>
-                    <td className="px-4 py-3 max-w-30]">
-                      <div
-                        className="flex items-center gap-1.5 text-[12px] text-gray-700 truncate"
-                        title={tx.account}
-                      >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5 text-[12px] text-gray-700">
                         <span
                           className="w-3 h-3 rounded-sm shrink-0"
                           style={{ background: tx.accountColor }}
                         />
-                        <span className="truncate">{tx.account}</span>
+                        <span>{tx.account}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -1001,7 +929,7 @@ const Transactions = () => {
                     {tx.type}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => handleEdit(tx)}
                     className="text-gray-400 hover:text-blue-500 transition-colors p-1"
@@ -1020,13 +948,13 @@ const Transactions = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 text-[13px] text-gray-700 min-w-0 flex-1">
-                    <Tag size={14} className="text-gray-400 flex-shrink-0" />
+                    <Tag size={14} className="text-gray-400 shrink-0" />
                     <span className="truncate" title={tx.category}>
                       {tx.category}
                     </span>
                   </div>
                   <span
-                    className={`text-[15px] font-bold whitespace-nowrap flex-shrink-0 ${
+                    className={`text-[15px] font-bold whitespace-nowrap shrink-0 ${
                       tx.amount > 0 ? "text-green-600" : "text-red-500"
                     }`}
                   >
@@ -1044,14 +972,14 @@ const Transactions = () => {
                 <div className="flex items-center justify-between pt-2 border-t border-gray-50">
                   <div className="flex items-center gap-1.5 text-[12px] text-gray-700 min-w-0 flex-1">
                     <span
-                      className="w-3 h-3 rounded-sm flex-shrink-0"
+                      className="w-3 h-3 rounded-sm shrink-0"
                       style={{ background: tx.accountColor }}
                     />
                     <span className="truncate" title={tx.account}>
                       {tx.account}
                     </span>
                   </div>
-                  <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                  <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
                     {tx.amount > 0
                       ? "Income"
                       : tx.type === "transfer"

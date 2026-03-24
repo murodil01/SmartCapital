@@ -177,38 +177,51 @@ import logo from "../../assets/images/logo.png";
 import sign_bg from "../../assets/images/sign_bg.png";
 import { MoveRight } from "lucide-react";
 import Password from "../../components/sign-up/password";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { authAPI } from "../../api/auth";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const SignUp = () => {
   const [step, setStep] = useState("phone");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mobileLeftHeight, setMobileLeftHeight] = useState("100vh");
+  const [mobileRightVisible, setMobileRightVisible] = useState(false);
+  const isMobile = window.innerWidth < 768; // STATIC
   const navigate = useNavigate();
+
+  // AOS faqat mobile uchun
+  useEffect(() => {
+    if (isMobile) {
+      AOS.init({ duration: 800, once: true });
+    }
+  }, [isMobile]);
+
+  // Mobile left side height animatsiyasi
+  useEffect(() => {
+    if (isMobile) {
+      let height = 100;
+      const interval = setInterval(() => {
+        height -= 2;
+        if (height <= 35) {
+          height = 35;
+          clearInterval(interval);
+          setMobileRightVisible(true);
+        }
+        setMobileLeftHeight(height + "vh");
+      }, 28);
+      return () => clearInterval(interval);
+    } else {
+      setMobileLeftHeight("auto");
+      setMobileRightVisible(true);
+    }
+  }, [isMobile]);
 
   const handlePhoneSubmit = (values) => {
     setPhoneNumber(values.phone);
     setStep("password");
   };
-
-  // const handleRegister = async (passwordData) => {
-  //   setLoading(true);
-  //   try {
-  //     const registerData = {
-  //       phone: phoneNumber,
-  //       password: passwordData.password,
-  //       confirm_password: passwordData.confirmPassword,
-  //     };
-
-  //     const response = await authAPI.register(registerData);
-  //     message.success("Registration successful! Please sign in.");
-  //     navigate("/"); // SignIn sahifasiga o'tadi
-  //   } catch (error) {
-  //     message.error(error.error || "Registration failed");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleRegister = async (passwordData) => {
     setLoading(true);
@@ -231,11 +244,17 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-0 h-screen">
+    <div 
+      className="flex flex-col lg:flex-row gap-0 h-screen overflow-hidden"
+      {...(isMobile ? { "data-aos": "fade-zoom-in" } : {})}
+    >
       {/* LEFT SIDE */}
       <div
-        className="flex flex-col gap-6 lg:gap-12.5 p-7.5 w-full lg:w-120 text-white lg:p-10 bg-no-repeat bg-cover bg-position-[center_top] lg:bg-center"
-        style={{ backgroundImage: `url(${sign_bg})` }}
+        className="flex flex-col gap-6 lg:gap-12.5 p-7.5 w-full lg:w-120 text-white lg:p-10 bg-no-repeat bg-cover bg-position-[center_top] lg:bg-center transition-all duration-700 ease-in-out md:w-1/2"
+        style={{
+          backgroundImage: `url(${sign_bg})`,
+          height: mobileLeftHeight,
+        }}
       >
         <div className="flex items-center gap-3">
           <img src={logo} alt="Logo" className="w-10" />
@@ -250,7 +269,20 @@ const SignUp = () => {
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="bg-white rounded-t-3xl lg:rounded-none flex flex-col flex-1 items-center -mt-5 lg:mt-0 justify-center relative p-4">
+      <div
+        className="bg-white rounded-t-3xl lg:rounded-none flex flex-col flex-1 items-center -mt-5 lg:mt-0 justify-center relative p-4"
+        style={
+          isMobile
+            ? {
+                opacity: mobileRightVisible ? 1 : 0,
+                transform: mobileRightVisible
+                  ? "translateY(0)"
+                  : "translateY(24px)",
+                transition: "opacity 0.6s ease, transform 0.6s ease",
+              }
+            : {}
+        }
+      >
         {/* PHONE STEP */}
         {step === "phone" && (
           <>
