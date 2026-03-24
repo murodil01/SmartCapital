@@ -85,7 +85,6 @@ export const expensesAPI = {
 
       return response.data;
     } catch (error) {
-      console.error('Create expense error:', error);
       throw error.response?.data || { error: 'Failed to create expense' };
     }
   },
@@ -113,7 +112,6 @@ export const expensesAPI = {
 
       return response.data;
     } catch (error) {
-      console.error('Update expense error:', error);
       throw error.response?.data || { error: 'Failed to update expense' };
     }
   },
@@ -132,7 +130,6 @@ export const expensesAPI = {
 
       return response.data;
     } catch (error) {
-      console.error('Delete expense error:', error);
       throw error.response?.data || { error: 'Failed to delete expense' };
     }
   }

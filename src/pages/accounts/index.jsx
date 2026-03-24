@@ -258,10 +258,10 @@ const AccountModal = ({ visible, onClose, onSave, initialData, loading }) => {
               onChange={(e) => handleChange("type", e.target.value)}
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
-              <option value="CASH">Cash</option>
-              <option value="CARD">Card</option>
-              <option value="DEBIT_CARD">Debit Card</option>
-              <option value="CREDIT_CARD">Credit Card</option>
+              <option value="CASH">CASH</option>
+              <option value="BANK_ACCOUNT">BANK ACCOUNT</option>
+              <option value="CARD">CARD</option>
+              <option value="EWALLET">EWALLET</option>
             </select>
           </div>
 
